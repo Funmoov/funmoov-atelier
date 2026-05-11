@@ -8,6 +8,7 @@ import { CurrentShares } from './sharing/CurrentShares'
 import { compareVersions } from 'compare-versions'
 import BellSoundWalkthrough from "./bellsound/BellSoundWalkthrough"
 import Diagnostics from './Diagnostics'
+import BatteryLab from './BatteryLab'
 
 export interface BikeControlsArgs {
     bike: Bike
@@ -15,7 +16,7 @@ export interface BikeControlsArgs {
     disconnect: () => void
 }
 
-type Tab = 'controls' | 'diagnostics'
+type Tab = 'controls' | 'diagnostics' | 'battery'
 
 export default function BikeControls({ bike, api, disconnect }: BikeControlsArgs) {
     const [tab, setTab] = useState<Tab>('controls')
@@ -33,7 +34,13 @@ export default function BikeControls({ bike, api, disconnect }: BikeControlsArgs
                         className={tab === 'diagnostics' ? 'tab active' : 'tab'}
                         onClick={() => setTab('diagnostics')}
                     >
-                        🔧 Diagnostic atelier
+                        🔧 Diagnostic
+                    </button>
+                    <button
+                        className={tab === 'battery' ? 'tab active' : 'tab'}
+                        onClick={() => setTab('battery')}
+                    >
+                        🔋 Battery Lab
                     </button>
                 </div>
 
@@ -52,6 +59,8 @@ export default function BikeControls({ bike, api, disconnect }: BikeControlsArgs
                 )}
 
                 {tab === 'diagnostics' && <Diagnostics bike={bike} />}
+
+                {tab === 'battery' && <BatteryLab bike={bike} />}
 
                 <Button onClick={disconnect} secondary>
                     Disconnect bike
