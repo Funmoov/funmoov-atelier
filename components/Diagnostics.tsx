@@ -5,6 +5,7 @@ import {
     takeDiagnosticSnapshot,
     DiagnosticSnapshot,
 } from '../lib/diagnostics'
+import { generatePdfReport } from '../lib/pdfReport'
 
 interface Props {
     bike: Bike
@@ -50,6 +51,15 @@ export default function Diagnostics({ bike }: Props) {
         URL.revokeObjectURL(url)
     }
 
+    const exportPdf = () => {
+        if (!snapshot) return
+        try {
+            generatePdfReport(snapshot)
+        } catch (e: any) {
+            setError(`Erreur génération PDF : ${e?.message ?? e}`)
+        }
+    }
+
     return (
         <div className='diag-root'>
             <h2>🔧 Diagnostic atelier</h2>
@@ -59,9 +69,14 @@ export default function Diagnostics({ bike }: Props) {
                     {loading ? '⏳ Lecture…' : '🔄 Relancer diagnostic'}
                 </Button>
                 {snapshot && (
-                    <Button onClick={exportJson} secondary>
-                        💾 Exporter JSON
-                    </Button>
+                    <>
+                        <Button onClick={exportPdf}>
+                            📄 Exporter PDF
+                        </Button>
+                        <Button onClick={exportJson} secondary>
+                            💾 JSON
+                        </Button>
+                    </>
                 )}
             </div>
 
