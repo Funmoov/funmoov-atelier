@@ -64,21 +64,31 @@ export default function BikeControls({ bike, api, disconnect }: BikeControlsArgs
                         justify-content: center;
                         margin: 20px 0;
                         flex-wrap: wrap;
+                        padding: 6px;
+                        background: var(--section-bg-color);
+                        border-radius: var(--radius-button);
+                        width: fit-content;
+                        margin-left: auto;
+                        margin-right: auto;
                     }
                     .tab {
-                        padding: 10px 20px;
-                        border-radius: 8px;
-                        border: 2px solid #888;
+                        padding: 10px 22px;
+                        border-radius: var(--radius-button);
+                        border: none;
                         background: transparent;
-                        color: inherit;
-                        font-size: 1em;
+                        color: var(--text-muted);
+                        font-size: 0.95rem;
+                        font-weight: 500;
                         cursor: pointer;
+                        transition: background-color 0.15s, color 0.15s;
+                    }
+                    .tab:hover:not(.active) {
+                        color: var(--text-color);
                     }
                     .tab.active {
-                        background: #4a9eff;
-                        border-color: #4a9eff;
-                        color: white;
-                        font-weight: bold;
+                        background: var(--accent-color);
+                        color: var(--accent-text-color);
+                        font-weight: 600;
                     }
                 `}</style>
             </ApiContext.Provider>

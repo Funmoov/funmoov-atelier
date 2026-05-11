@@ -210,97 +210,90 @@ export default function Diagnostics({ bike }: Props) {
                     flex-wrap: wrap;
                 }
                 .error {
-                    background: #fee;
-                    color: #900;
-                    padding: 12px;
-                    border-radius: 8px;
+                    background: var(--error-box-bg-color);
+                    color: var(--error-text-color);
+                    padding: 12px 16px;
+                    border-radius: var(--radius-card);
                     margin: 10px 0;
                 }
                 .ok {
-                    color: #2a7a3a;
-                    font-weight: bold;
+                    color: #6fdc8c;
+                    font-weight: 600;
                     text-align: center;
                     padding: 12px;
                 }
                 .warning {
-                    color: #a04400;
-                    font-weight: bold;
+                    color: #ffb060;
+                    font-weight: 600;
                     text-align: center;
                 }
                 .error-card {
-                    border: 2px solid #d04000;
-                    border-radius: 8px;
-                    padding: 12px;
+                    border: 1px solid rgba(255, 144, 144, 0.35);
+                    border-radius: var(--radius-card);
+                    padding: 14px 16px;
                     margin: 10px 0;
-                    background: rgba(208, 64, 0, 0.06);
+                    background: var(--error-box-bg-color);
                 }
                 .error-header {
                     display: flex;
                     gap: 12px;
                     align-items: center;
-                    margin-bottom: 8px;
+                    margin-bottom: 10px;
                 }
                 .error-hex {
-                    background: #d04000;
-                    color: white;
+                    background: var(--error-text-color);
+                    color: var(--accent-text-color);
                     padding: 4px 10px;
-                    border-radius: 4px;
-                    font-family: monospace;
-                    font-weight: bold;
-                }
-                .error-sub {
-                    background: #e0e0e0;
-                    color: #333;
-                    padding: 4px 10px;
-                    border-radius: 4px;
+                    border-radius: 6px;
+                    font-family: 'Menlo', 'Consolas', monospace;
+                    font-weight: 600;
                     font-size: 0.9em;
                 }
+                .error-sub {
+                    background: var(--section-bg-elevated);
+                    color: var(--text-muted);
+                    padding: 4px 10px;
+                    border-radius: 6px;
+                    font-size: 0.85em;
+                }
                 .error-title {
-                    font-weight: bold;
-                    font-size: 1.1em;
+                    font-weight: 600;
+                    font-size: 1.05em;
                     margin-bottom: 6px;
+                    color: var(--text-color);
                 }
                 .error-desc {
                     margin-bottom: 10px;
-                    color: #555;
+                    color: var(--text-muted);
                 }
                 .error-block {
-                    margin-top: 8px;
+                    margin-top: 10px;
+                }
+                .error-block strong {
+                    color: var(--text-color);
                 }
                 .error-block ul,
                 .error-block ol {
                     margin: 4px 0 0 20px;
+                    color: var(--text-muted);
                 }
                 .raw {
-                    margin-top: 12px;
+                    margin-top: 14px;
                     font-size: 0.9em;
+                    color: var(--text-muted);
+                }
+                .raw summary {
+                    cursor: pointer;
                 }
                 .raw code {
-                    font-family: monospace;
-                    background: rgba(0, 0, 0, 0.05);
-                    padding: 4px 8px;
-                    border-radius: 4px;
+                    font-family: 'Menlo', 'Consolas', monospace;
+                    background: var(--section-bg-elevated);
+                    padding: 6px 10px;
+                    border-radius: 6px;
                     display: inline-block;
                     word-break: break-all;
-                }
-                @media (prefers-color-scheme: dark) {
-                    .error {
-                        background: #2a0000;
-                        color: #ff9090;
-                    }
-                    .error-card {
-                        background: rgba(208, 64, 0, 0.15);
-                    }
-                    .error-desc {
-                        color: #ccc;
-                    }
-                    .error-sub {
-                        background: #404040;
-                        color: #e0e0e0;
-                    }
-                    .raw code {
-                        background: rgba(255, 255, 255, 0.08);
-                    }
+                    color: var(--text-color);
+                    margin-top: 4px;
                 }
             `}</style>
         </div>
@@ -315,9 +308,9 @@ function Section({ title, children }: { title: string; children: React.ReactNode
             <style jsx>{`
                 .section {
                     margin: 20px 0;
-                    padding: 16px;
-                    border-radius: 12px;
-                    background: rgba(0, 0, 0, 0.03);
+                    padding: 18px 20px;
+                    border-radius: var(--radius-section);
+                    background: var(--section-bg-color);
                 }
                 .section h3 {
                     margin: 0 0 12px 0;
@@ -327,11 +320,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
                     flex-direction: column;
                     gap: 6px;
                 }
-                @media (prefers-color-scheme: dark) {
-                    .section {
-                        background: rgba(255, 255, 255, 0.05);
-                    }
-                }
+                /* Thème sombre forcé via globals.css */
             `}</style>
         </section>
     )
@@ -347,29 +336,25 @@ function KV({ k, v, mono }: { k: string; v: React.ReactNode; mono?: boolean }) {
                     display: flex;
                     justify-content: space-between;
                     gap: 12px;
-                    padding: 4px 0;
-                    border-bottom: 1px dashed rgba(0, 0, 0, 0.1);
+                    padding: 6px 0;
+                    border-bottom: 1px solid var(--divider-color);
+                }
+                .kv:last-child {
+                    border-bottom: none;
                 }
                 .k {
-                    color: #666;
+                    color: var(--text-muted);
                     flex-shrink: 0;
                 }
                 .v {
                     text-align: right;
                     font-weight: 500;
                     word-break: break-all;
+                    color: var(--text-color);
                 }
                 .mono {
-                    font-family: monospace;
-                    font-size: 0.9em;
-                }
-                @media (prefers-color-scheme: dark) {
-                    .kv {
-                        border-bottom-color: rgba(255, 255, 255, 0.15);
-                    }
-                    .k {
-                        color: #aaa;
-                    }
+                    font-family: 'Menlo', 'Consolas', monospace;
+                    font-size: 0.88em;
                 }
             `}</style>
         </div>

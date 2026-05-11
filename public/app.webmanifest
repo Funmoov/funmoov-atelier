@@ -1,11 +1,11 @@
 {
     "$schema": "https://json.schemastore.org/web-manifest-combined.json",
-    "name": "Mooovy",
-    "short_name": "Mooovy",
+    "name": "FunMoov Atelier",
+    "short_name": "FunMoov",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#ff0",
-    "description": "A webapp for controlling your vanmoof S3 and X3",
+    "description": "Outils de diagnostic atelier pour VanMoof S3 et X3",
     "icons": [
         {
             "src": "/compressed_logos/logo_full.png",

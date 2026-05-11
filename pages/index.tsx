@@ -73,13 +73,14 @@ const Home: NextPage = () => {
   return (
     <div>
       <main>
-        <h1 className='title'>Mooovy</h1>
-        <p>Change VanMoof S&X 3 speed limit</p>
+        <h1 className='title'>FunMoov Atelier</h1>
+        <p>Outils de diagnostic VanMoof S3 / X3</p>
 
         {!browserCompatible || (!bikeInstance && !credentials) ?
           <>
             <p className='description'>
-              Using this site you can change the speed limit of your VanMoof S3 and X3
+              Application atelier pour réparation et diagnostic des VanMoof S3 et X3.
+              Connexion BLE, lecture des codes erreur, état firmware et batterie.
             </p>
             <div className='previewLight'>
               <Image

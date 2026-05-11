@@ -1,58 +1,76 @@
-/* Light theme */
+/* ========================================================================
+   FunMoov Atelier — palette & style v0.7
+   Inspirée de l'app Kotlin FunMoov : fond sombre, sections en cartes,
+   boutons pilule bleu pâle, typographie nette.
+   La palette s'applique en permanence (pas dépendante de prefers-color-scheme)
+   pour avoir un rendu atelier consistant.
+   ======================================================================== */
+
 :root {
-  --main-bg-color: white;
-  --text-color: black;
-  --label-color: rgba(0, 0, 0, 0.7);
-  --disabled-text-color: rgba(0, 0, 0, 0.5);
-  --border-color: black;
-  --secondary-border-color: rgba(0, 0, 0, 0.6);
-  --divider-color: #eaeaea;
-  --error-box-bg-color: #ffccbc;
-  --warning-box-bg-color: #ffecb3;
-  --positive-box-bg-color: #c8e6c9;
-  --active-color: #1976d2;
-  --active-button-bg-color: #7fbbf7;
-  --active-title-color: #1976d2;
-  --error-text-color: darkred;
-}
+  /* Fond et structure */
+  --main-bg-color: #161618;
+  --section-bg-color: #2a2a2d;
+  --section-bg-elevated: #34343a;
+  --divider-color: #3a3a3f;
 
-@media (prefers-color-scheme: dark) {
+  /* Texte */
+  --text-color: #ffffff;
+  --text-muted: #a8a8b0;
+  --label-color: #a8a8b0;
+  --disabled-text-color: rgba(255, 255, 255, 0.4);
 
-  /* Dark theme */
-  :root {
-    --main-bg-color: #121212;
-    --text-color: white;
-    --label-color: rgba(255, 255, 255, 0.75);
-    --disabled-text-color: rgba(255, 255, 255, 0.55);
-    --border-color: white;
-    --secondary-border-color: rgba(255, 255, 255, 0.75);
-    --divider-color: #404040;
-    --error-box-bg-color: #741818;
-    --warning-box-bg-color: #5d4037;
-    --positive-box-bg-color: #004d40;
-    --active-color: #42a5f5;
-    --active-button-bg-color: #254f71;
-    --active-title-color: #92c9ff;
-    --error-text-color: #f57979;
-  }
+  /* Bordures */
+  --border-color: #4a4a52;
+  --secondary-border-color: #3a3a3f;
+
+  /* Accent FunMoov : bleu pâle pour boutons primaires */
+  --accent-color: #9cc9f0;
+  --accent-color-hover: #b3d8f5;
+  --accent-text-color: #1a1a1d;
+
+  /* Statuts */
+  --active-color: #9cc9f0;
+  --active-button-bg-color: #9cc9f0;
+  --active-title-color: #9cc9f0;
+  --error-box-bg-color: rgba(208, 64, 0, 0.18);
+  --warning-box-bg-color: rgba(255, 180, 60, 0.15);
+  --positive-box-bg-color: rgba(80, 200, 120, 0.18);
+  --error-text-color: #ff9090;
+
+  /* Rayons */
+  --radius-section: 16px;
+  --radius-button: 28px;
+  --radius-card: 12px;
 }
 
 html,
 body {
   padding: 0;
   margin: 0;
-}
-
-body {
-  font-size: 18px;
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
   background-color: var(--main-bg-color);
   color: var(--text-color);
 }
 
+body {
+  font-size: 17px;
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  background-color: var(--main-bg-color);
+  color: var(--text-color);
+  min-height: 100vh;
+}
+
+h1, h2, h3 {
+  color: var(--text-color);
+  font-weight: 600;
+}
+
+h1 { font-size: 1.8rem; letter-spacing: -0.5px; }
+h2 { font-size: 1.4rem; }
+h3 { font-size: 1.1rem; color: var(--text-muted); margin-top: 0; }
+
 a {
-  color: var(--active-color);
+  color: var(--accent-color);
   text-decoration: none;
 }
 
@@ -67,10 +85,33 @@ a:hover {
 button {
   cursor: pointer;
   color: var(--text-color);
+  font-family: inherit;
 }
 
 button[disabled] {
   cursor: default;
   color: var(--disabled-text-color);
   border-color: var(--disabled-text-color);
+}
+
+/* Liens et formulaires */
+input, select, textarea {
+  background-color: var(--section-bg-elevated);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--accent-color);
+}
+
+/* Sélection texte cohérente avec le thème */
+::selection {
+  background: var(--accent-color);
+  color: var(--accent-text-color);
 }
