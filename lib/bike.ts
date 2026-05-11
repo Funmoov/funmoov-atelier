@@ -97,6 +97,11 @@ export class Bike {
         return await this.queue.push(() => this.bluetoothReadWithoutQueue(characteristic, decrypt))
     }
 
+    /** Exposé public pour le module Diagnostics (utilisé par lib/diagnostics.ts). */
+    async readCharBytes(characteristic: Characteristic, decrypt = true): Promise<Uint8Array> {
+        return await this.bluetoothRead(characteristic, decrypt)
+    }
+
     private async bluetoothWriteWithoutQueue(characteristic: Characteristic, data: Uint8Array, encrypted = true) {
         const payload = encrypted ? await this.makeEncryptedPayloadWithoutQueue(data) : data
         const bluetoothService = await this.server.getPrimaryService(characteristic.service)

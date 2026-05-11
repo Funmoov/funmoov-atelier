@@ -7,6 +7,7 @@ import { Api, ApiContext } from '../lib/api'
 import { CurrentShares } from './sharing/CurrentShares'
 import { compareVersions } from 'compare-versions'
 import BellSoundWalkthrough from "./bellsound/BellSoundWalkthrough"
+import Diagnostics from './Diagnostics'
 
 export interface BikeControlsArgs {
     bike: Bike
@@ -14,22 +15,72 @@ export interface BikeControlsArgs {
     disconnect: () => void
 }
 
+type Tab = 'controls' | 'diagnostics'
+
 export default function BikeControls({ bike, api, disconnect }: BikeControlsArgs) {
+    const [tab, setTab] = useState<Tab>('controls')
     return (
         <BikeContext.Provider value={bike}>
             <ApiContext.Provider value={api}>
-                <BikeStats bike={bike} />
-                <SpeedLimit bike={bike} />
-                <PowerLevel bike={bike} />
-                <BellTone bike={bike} />
-                <SoundBoard />
-                {api && bike.id && <>
-                    <ShareBike bike={bike} api={api} />
-                    <CurrentShares bikeId={bike.id} api={api} />
-                </>}
+                <div className='tab-bar'>
+                    <button
+                        className={tab === 'controls' ? 'tab active' : 'tab'}
+                        onClick={() => setTab('controls')}
+                    >
+                        🎛 Controls
+                    </button>
+                    <button
+                        className={tab === 'diagnostics' ? 'tab active' : 'tab'}
+                        onClick={() => setTab('diagnostics')}
+                    >
+                        🔧 Diagnostic atelier
+                    </button>
+                </div>
+
+                {tab === 'controls' && (
+                    <>
+                        <BikeStats bike={bike} />
+                        <SpeedLimit bike={bike} />
+                        <PowerLevel bike={bike} />
+                        <BellTone bike={bike} />
+                        <SoundBoard />
+                        {api && bike.id && <>
+                            <ShareBike bike={bike} api={api} />
+                            <CurrentShares bikeId={bike.id} api={api} />
+                        </>}
+                    </>
+                )}
+
+                {tab === 'diagnostics' && <Diagnostics bike={bike} />}
+
                 <Button onClick={disconnect} secondary>
                     Disconnect bike
                 </Button>
+
+                <style jsx>{`
+                    .tab-bar {
+                        display: flex;
+                        gap: 8px;
+                        justify-content: center;
+                        margin: 20px 0;
+                        flex-wrap: wrap;
+                    }
+                    .tab {
+                        padding: 10px 20px;
+                        border-radius: 8px;
+                        border: 2px solid #888;
+                        background: transparent;
+                        color: inherit;
+                        font-size: 1em;
+                        cursor: pointer;
+                    }
+                    .tab.active {
+                        background: #4a9eff;
+                        border-color: #4a9eff;
+                        color: white;
+                        font-weight: bold;
+                    }
+                `}</style>
             </ApiContext.Provider>
         </BikeContext.Provider>
     )
