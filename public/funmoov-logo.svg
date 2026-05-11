@@ -4,30 +4,30 @@
   <!-- Cercle extérieur -->
   <circle cx="256" cy="256" r="246" fill="#ffffff" stroke="#1d3a4a" stroke-width="6"/>
 
-  <!-- Lettre f stylisée -->
-  <g fill="#1d3a4a">
-    <!-- Hampe verticale du f -->
-    <rect x="232" y="125" width="48" height="280" rx="4"/>
-    <!-- Crochet supérieur du f -->
-    <path d="M 232 145
-             Q 232 110 268 110
-             L 298 110
-             Q 312 110 312 124
-             L 312 144
-             Q 312 158 298 158
-             L 280 158
-             Z"/>
-    <!-- Barre horizontale du f -->
-    <rect x="200" y="220" width="112" height="40" rx="4"/>
-  </g>
+  <!-- Lettre "f" en typographie (utilisation de la police système sans-serif) -->
+  <text x="256" y="340"
+        font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
+        font-size="340"
+        font-weight="500"
+        fill="#1d3a4a"
+        text-anchor="middle"
+        letter-spacing="0">f</text>
 
   <!-- Texte funmoov -->
-  <text x="256" y="438" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
-        font-size="58" font-weight="500" fill="#1d3a4a"
-        text-anchor="middle" letter-spacing="-1">funmoov</text>
+  <text x="256" y="438"
+        font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+        font-size="58"
+        font-weight="500"
+        fill="#1d3a4a"
+        text-anchor="middle"
+        letter-spacing="-1">funmoov</text>
 
   <!-- Texte ATELIER -->
-  <text x="256" y="482" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
-        font-size="26" font-weight="400" fill="#c4a87a"
-        text-anchor="middle" letter-spacing="6">ATELIER</text>
+  <text x="256" y="482"
+        font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+        font-size="26"
+        font-weight="400"
+        fill="#c4a87a"
+        text-anchor="middle"
+        letter-spacing="6">ATELIER</text>
 </svg>

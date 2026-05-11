@@ -1,23 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
-  <!-- Version maskable du logo (avec safe zone 40% du centre) pour Android adaptive icons -->
-  <!-- Fond plein -->
+  <!-- Version maskable pour Android adaptive icons (safe zone ~40% du centre) -->
   <rect width="512" height="512" fill="#1d3a4a"/>
+  <circle cx="256" cy="256" r="170" fill="#ffffff"/>
 
-  <!-- Cercle blanc intérieur (safe zone) -->
-  <circle cx="256" cy="256" r="160" fill="#ffffff"/>
-
-  <!-- Lettre f stylisée centrée dans le safe zone -->
-  <g fill="#1d3a4a">
-    <rect x="244" y="170" width="32" height="200" rx="3"/>
-    <path d="M 244 184
-             Q 244 156 270 156
-             L 290 156
-             Q 300 156 300 166
-             L 300 180
-             Q 300 190 290 190
-             L 276 190
-             Z"/>
-    <rect x="218" y="234" width="76" height="28" rx="3"/>
-  </g>
+  <!-- Lettre "f" centrée dans la safe zone -->
+  <text x="256" y="335"
+        font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
+        font-size="240"
+        font-weight="500"
+        fill="#1d3a4a"
+        text-anchor="middle">f</text>
 </svg>
