@@ -6,9 +6,6 @@ import type { BikeControlsArgs } from '../components/Controls'
 import Login, { BikeAndApiCredentials } from '../components/Login'
 import BluetoothConnect from '../components/Connect'
 import dynamic from 'next/dynamic'
-import Image from 'next/image'
-import screenshotLight from '../public/screenshot_light.png'
-import screenshotDark from '../public/screenshot_dark.png'
 import { Footer } from '../components/Footer'
 
 const Unsupported = dynamic(() => import('../components/Unsupported'), { ssr: false })
@@ -73,32 +70,17 @@ const Home: NextPage = () => {
   return (
     <div>
       <main>
-        <h1 className='title'>FunMoov Atelier</h1>
-        <p>Outils de diagnostic VanMoof S3 / X3</p>
+        {/* Logo en haut de page */}
+        <img src='/funmoov-logo.svg' alt='funmoov atelier' className='logo' />
+
+        <h1 className='title'>funmoov atelier</h1>
+        <p className='subtitle'>Outils de diagnostic VanMoof S3 / X3</p>
 
         {!browserCompatible || (!bikeInstance && !credentials) ?
-          <>
-            <p className='description'>
-              Application atelier pour réparation et diagnostic des VanMoof S3 et X3.
-              Connexion BLE, lecture des codes erreur, état firmware et batterie.
-            </p>
-            <div className='previewLight'>
-              <Image
-                alt="Site preview"
-                src={screenshotLight}
-                placeholder='blur'
-                layout="responsive"
-              />
-            </div>
-            <div className='previewDark'>
-              <Image
-                alt="Site preview"
-                src={screenshotDark}
-                placeholder='blur'
-                layout="responsive"
-              />
-            </div>
-          </>
+          <p className='description'>
+            Application atelier pour réparation et diagnostic des VanMoof S3 et X3.
+            Connexion BLE, lecture des codes erreur, état firmware et batterie.
+          </p>
           : undefined}
 
         {!browserCompatible
@@ -124,34 +106,38 @@ const Home: NextPage = () => {
 
       <style jsx>{`
         main {
-          padding: 4rem 2rem;
+          padding: 2.5rem 1.5rem;
           flex: 1;
           display: flex;
           flex-direction: column;
-          justify-content: center;
+          justify-content: flex-start;
           align-items: center;
+          max-width: 720px;
+          margin: 0 auto;
         }
-
+        .logo {
+          width: 200px;
+          height: 200px;
+          margin-bottom: 8px;
+          filter: drop-shadow(0 4px 20px rgba(0, 0, 0, 0.3));
+        }
         .title {
           font-size: 2rem;
           text-align: center;
+          margin: 0;
+          letter-spacing: -1px;
         }
-
+        .subtitle {
+          color: var(--text-muted);
+          text-align: center;
+          margin: 4px 0 24px 0;
+          font-size: 1rem;
+        }
         .description {
           text-align: center;
-        }
-
-        .previewLight, .previewDark {
-          height: 400px;
-          width: 400px;
-        }
-
-        .previewLight {display: block !important;}
-        .previewDark {display: none !important;}
-
-        @media (prefers-color-scheme: dark) {
-          .previewLight {display: none !important;}
-          .previewDark {display: block !important;}
+          color: var(--text-muted);
+          max-width: 480px;
+          line-height: 1.5;
         }
       `}</style>
     </div>

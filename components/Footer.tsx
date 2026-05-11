@@ -1,35 +1,52 @@
-import Link from 'next/link'
-
 interface FooterProps {
     noDonate?: boolean
 }
 
+/**
+ * Footer FunMoov Atelier.
+ * Le param `noDonate` est conservé pour compat (utilisé par pages/donate.tsx)
+ * mais la mention "Donate" a été remplacée par un lien vers le site funmoovparis.fr.
+ */
 export function Footer({ noDonate }: FooterProps) {
     return (
         <footer>
             <div>
-                <a href="https://github.com/mjarkk/vanmoof-web-controller">Source code</a>
-                {noDonate ? undefined : <Link href="/donate">
-                    <a>Donate!</a>
-                </Link>}
+                <a href="https://www.funmoovparis.fr" target="_blank" rel="noopener noreferrer">
+                    funmoovparis.fr
+                </a>
+                <a
+                    href="https://github.com/mjarkk/vanmoof-web-controller"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    Source code
+                </a>
             </div>
-            <div>
-                <b>NOT</b> an offical VanMoof service/product!
+            <div className='disclaimer'>
+                Application atelier indépendante — <b>non affiliée</b> à VanMoof.
             </div>
             <style jsx>{`
                 footer {
-                    padding: 20px 2rem 0 2rem;
-
+                    padding: 24px 1rem 16px 1rem;
                     border-top: 1px solid var(--divider-color);
+                    margin-top: 32px;
                 }
                 div {
-                    padding-bottom: 10px;
+                    padding-bottom: 8px;
                     text-align: center;
                 }
                 a {
-                    padding: 10px;
+                    padding: 8px 14px;
                     display: inline-block;
-                    font-weight: bold;
+                    font-weight: 500;
+                    color: var(--accent-color);
+                }
+                a:hover {
+                    color: var(--accent-color-hover);
+                }
+                .disclaimer {
+                    color: var(--text-muted);
+                    font-size: 0.85rem;
                 }
             `}</style>
         </footer>

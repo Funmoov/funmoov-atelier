@@ -5,11 +5,12 @@ import Head from 'next/head'
 function MyApp({ Component, pageProps }: AppProps) {
   return <div>
     <Head>
-      <title>FunMoov Atelier — Diagnostic VanMoof S3 / X3</title>
-      <link rel="icon" type="image/png" href="/compressed_logos/logo_full_64.png" />
+      <title>funmoov atelier — Diagnostic VanMoof S3 / X3</title>
+      <link rel="icon" type="image/svg+xml" href="/funmoov-logo.svg" />
       <link rel="manifest" href="/app.webmanifest"></link>
       <meta name="description" content="Outils de diagnostic atelier pour les vélos VanMoof S3 et X3" />
-      <meta property="og:title" content="FunMoov Atelier — Diagnostic VanMoof S3 / X3" />
+      <meta property="og:title" content="funmoov atelier — Diagnostic VanMoof S3 / X3" />
+      <meta name="theme-color" content="#1d3a4a" />
     </Head>
     <Component {...pageProps} />
     <div id="modals" />

@@ -1,61 +1,24 @@
 {
     "$schema": "https://json.schemastore.org/web-manifest-combined.json",
-    "name": "FunMoov Atelier",
-    "short_name": "FunMoov",
+    "name": "funmoov atelier",
+    "short_name": "funmoov",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#ff0",
+    "background_color": "#1d3a4a",
+    "theme_color": "#1d3a4a",
     "description": "Outils de diagnostic atelier pour VanMoof S3 et X3",
     "icons": [
         {
-            "src": "/compressed_logos/logo_full.png",
-            "sizes": "1000x1000",
-            "type": "image/png"
+            "src": "/funmoov-logo.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any"
         },
         {
-            "src": "/compressed_logos/logo_full.webp",
-            "sizes": "1000x1000",
-            "type": "image/webp"
-        },
-        {
-            "src": "/compressed_logos/logo_full_512.png",
-            "sizes": "512x512",
-            "type": "image/png"
-        },
-        {
-            "src": "/compressed_logos/logo_full_512.webp",
-            "sizes": "512x512",
-            "type": "image/webp"
-        },
-        {
-            "src": "/compressed_logos/logo_full_256.png",
-            "sizes": "256x256",
-            "type": "image/png"
-        },
-        {
-            "src": "/compressed_logos/logo_full_256.webp",
-            "sizes": "256x256",
-            "type": "image/webp"
-        },
-        {
-            "src": "/compressed_logos/logo_full_128.png",
-            "sizes": "128x128",
-            "type": "image/png"
-        },
-        {
-            "src": "/compressed_logos/logo_full_128.webp",
-            "sizes": "128x128",
-            "type": "image/webp"
-        },
-        {
-            "src": "/compressed_logos/logo_full_64.png",
-            "sizes": "64x64",
-            "type": "image/png"
-        },
-        {
-            "src": "/compressed_logos/logo_full_64.webp",
-            "sizes": "64x64",
-            "type": "image/webp"
+            "src": "/funmoov-logo-maskable.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "maskable"
         }
     ]
 }
