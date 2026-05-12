@@ -100,7 +100,7 @@ export default function BatteryLab({ bike }: Props) {
                     </Section>
 
                     {/* Estimation d'usure */}
-                    <Section title='⏱️ Estimation d\'usure'>
+                    <Section title="⏱️ Estimation d'usure">
                         <KV
                             k='Distance totale'
                             v={

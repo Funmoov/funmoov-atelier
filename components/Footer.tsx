@@ -14,6 +14,9 @@ export function Footer({ noDonate }: FooterProps) {
                 <a href="https://www.funmoovparis.fr" target="_blank" rel="noopener noreferrer">
                     funmoovparis.fr
                 </a>
+                <a href="/qr-atelier">
+                    QR atelier
+                </a>
                 <a
                     href="https://github.com/mjarkk/vanmoof-web-controller"
                     target="_blank"

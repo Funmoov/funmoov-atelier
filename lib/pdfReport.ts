@@ -12,11 +12,12 @@ import { jsPDF } from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import type { DiagnosticSnapshot } from './diagnostics'
 
-const COLOR_BRAND = [29, 58, 74] as [number, number, number] // #1d3a4a
-const COLOR_ACCENT = [196, 168, 122] as [number, number, number] // #c4a87a (beige ATELIER)
-const COLOR_TEXT = [40, 40, 40] as [number, number, number]
-const COLOR_MUTED = [120, 120, 120] as [number, number, number]
-const COLOR_ERROR = [200, 60, 40] as [number, number, number]
+type RGB = [number, number, number]
+const COLOR_BRAND: RGB = [29, 58, 74]    // #1d3a4a
+const COLOR_ACCENT: RGB = [196, 168, 122] // #c4a87a (beige ATELIER)
+const COLOR_TEXT: RGB = [40, 40, 40]
+const COLOR_MUTED: RGB = [120, 120, 120]
+const COLOR_ERROR: RGB = [200, 60, 40]
 
 export function generatePdfReport(snapshot: DiagnosticSnapshot, bikeName?: string): void {
     const doc = new jsPDF({ unit: 'mm', format: 'a4' })
@@ -237,21 +238,21 @@ function section(doc: jsPDF, title: string, y: number, alert = false): number {
     return y + 6
 }
 
-function tableStyle(headColor: [number, number, number] = COLOR_BRAND) {
+function tableStyle(headColor: RGB = COLOR_BRAND): any {
     return {
         styles: {
-            font: 'helvetica' as const,
+            font: 'helvetica',
             fontSize: 9,
             cellPadding: 2.5,
             textColor: COLOR_TEXT,
         },
         headStyles: {
             fillColor: headColor,
-            textColor: [255, 255, 255] as [number, number, number],
-            fontStyle: 'bold' as const,
+            textColor: [255, 255, 255],
+            fontStyle: 'bold',
         },
         alternateRowStyles: {
-            fillColor: [245, 245, 247] as [number, number, number],
+            fillColor: [245, 245, 247],
         },
         margin: { left: 16, right: 16 },
     }

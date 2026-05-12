@@ -56,8 +56,8 @@ const PartagerPage: NextPage = () => {
         }
         setStatus({ kind: 'running' })
 
-        const api = credentials.api
-        const bikes = credentials.bikes
+        const api = credentials.api as any
+        const bikes = credentials.bikes as any[]
 
         if (bikes.length === 0) {
             setStatus({ kind: 'error', message: 'Aucun vélo trouvé sur votre compte VanMoof.' })
@@ -72,13 +72,14 @@ const PartagerPage: NextPage = () => {
                 // L'API attend un objet "Bike" mais en interne elle ne lit que bike.id
                 // (cf. lib/api.ts createBikeSharingInvitation). On passe donc un objet partiel.
                 await api.createBikeSharingInvitation(
-                    bike as any, // l'API n'utilise que .id
+                    bike,
                     FUNMOOV_ATELIER_EMAIL,
                     undefined, // pas de durée → partage permanent
                 )
                 successCount++
             } catch (e: any) {
-                errors.push(`${bike.name ?? bike.mac}: ${e?.message ?? e}`)
+                const bikeLabel = bike?.name || bike?.mac || 'vélo'
+                errors.push(`${bikeLabel}: ${e?.message ?? e}`)
             }
         }
 
