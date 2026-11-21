@@ -1496,7 +1496,12 @@ async function bmsReadCells(){
   if(!bmsPort){ log("Connecte d'abord le câble UART.","warn"); return; }
   try{
     // Lecture bloc 0x02..0x2A (41 registres) : état + 10 cellules + min/max
-    const r=await modbusRead(0x0002,41);
+    let r=null, lastErr;
+    for(let attempt=1; attempt<=4; attempt++){
+      try{ r=await modbusRead(0x0002,41); break; }
+      catch(e){ lastErr=e; if(attempt<4){ log("Tentative "+attempt+" échouée, nouvel essai…","warn"); await sleep(400); } }
+    }
+    if(!r) throw lastErr;
     const temp=((r[1]-2731)/10).toFixed(1);
     const packV=(r[2]/1000).toFixed(2);
     const soc=r[3];
@@ -1552,7 +1557,7 @@ $("btnBmsRead").onclick=bmsReadCells;
     $("btnConnect").disabled=true;
     log("Web Bluetooth non disponible dans ce contexte.","err");
   } else {
-    log("Funmoov v20 prêt. Allume ton vélo et clique « Connecter ».","ok");
+    log("Funmoov v21 prêt. Allume ton vélo et clique « Connecter ».","ok");
   }
   if(!navigator.serial){
     $("btnBmsConnect").disabled=true;
