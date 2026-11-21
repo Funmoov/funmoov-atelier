@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Funmoov — Diagnostic VanMoof</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script>
 /*! MIT License. Copyright 2015-2018 Richard Moore <me@ricmoo.com>. See LICENSE.txt. */
 (function(root) {
@@ -812,83 +815,104 @@
 </script>
 <style>
   :root{
-    --bg:#0c1116; --bg2:#121a22; --card:#161f29; --card2:#1c2834;
-    --line:#26323f; --txt:#e8eef4; --mut:#8aa0b2; --dim:#5f7384;
-    --accent:#19e39a; --accent2:#12b981; --warn:#ffb020; --err:#ff5c6c; --ok:#19e39a;
-    --radius:16px;
+    --bg:#0a0a0c; --bg2:#0f0f12; --card:#141418; --card2:#1c1c22;
+    --tile:#111115; --line:#26262d; --txt:#ececee; --mut:#86868f; --dim:#54545d;
+    --amber:#edb64b; --amber2:#c9933a; --amberdim:#7a5f26;
+    --warn:#edb64b; --err:#ff5f6a; --ok:#54d98a;
+    --radius:18px;
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;background:
-     radial-gradient(1200px 600px at 80% -10%, #13303b 0%, transparent 55%),
-     radial-gradient(900px 500px at -10% 10%, #182033 0%, transparent 50%), var(--bg);
+  body{font-family:'Inter',system-ui,sans-serif;background:
+     radial-gradient(900px 500px at 85% -15%, rgba(237,182,75,.06) 0%, transparent 55%), var(--bg);
     color:var(--txt);min-height:100vh;line-height:1.5;-webkit-font-smoothing:antialiased}
-  .wrap{max-width:900px;margin:0 auto;padding:20px 16px 60px}
-  header{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:8px 0 24px}
-  .logo{display:flex;align-items:center;gap:11px}
-  .mark{width:40px;height:40px;border-radius:11px;background:linear-gradient(135deg,var(--accent),var(--accent2));
-    display:grid;place-items:center;font-size:22px;box-shadow:0 6px 20px -6px var(--accent2)}
-  .brand{font-weight:800;font-size:22px;letter-spacing:-.02em}
-  .brand span{color:var(--accent)}
-  .sub{font-size:12.5px;color:var(--dim);font-weight:500;margin-top:-2px}
-  .status{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;
-    background:var(--card);border:1px solid var(--line);padding:8px 14px;border-radius:30px}
-  .dot{width:9px;height:9px;border-radius:50%;background:var(--dim);transition:.3s}
+  .mtx{font-family:'Silkscreen',ui-monospace,monospace}
+  .wrap{max-width:760px;margin:0 auto;padding:20px 15px 64px}
+  header{display:flex;align-items:center;gap:13px;flex-wrap:wrap;margin:6px 2px 22px}
+  .logo{display:flex;align-items:center;gap:13px}
+  .mark{width:44px;height:44px;border-radius:13px;background:var(--amber);color:#1c1500;
+    display:grid;place-items:center;font-size:21px;box-shadow:0 0 28px -8px var(--amber)}
+  .brand{font-family:'Silkscreen',ui-monospace,monospace;font-weight:700;font-size:19px;letter-spacing:.01em}
+  .brand span{color:var(--amber)}
+  .sub{font-size:10px;color:var(--dim);font-weight:500;margin-top:5px;text-transform:uppercase;letter-spacing:.11em}
+  .status{margin-left:auto;display:flex;align-items:center;gap:9px;font-family:'Silkscreen',ui-monospace,monospace;
+    font-size:10px;color:var(--amber);background:rgba(237,182,75,.05);border:1px solid var(--amberdim);
+    padding:10px 15px;border-radius:30px;text-transform:uppercase;letter-spacing:.04em}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--dim);transition:.3s}
   .dot.on{background:var(--ok);box-shadow:0 0 10px var(--ok)}
-  .dot.auth{background:var(--accent);box-shadow:0 0 12px var(--accent)}
+  .dot.auth{background:var(--amber);box-shadow:0 0 12px var(--amber)}
   .dot.busy{background:var(--warn);box-shadow:0 0 10px var(--warn);animation:pulse 1s infinite}
-  @keyframes pulse{50%{opacity:.35}}
-  .banner{background:rgba(255,92,108,.12);border:1px solid rgba(255,92,108,.35);color:#ffd4d9;
-    padding:13px 16px;border-radius:12px;font-size:13.5px;margin-bottom:20px;display:none}
+  @keyframes pulse{50%{opacity:.3}}
+  .banner{background:rgba(255,95,106,.1);border:1px solid rgba(255,95,106,.3);color:#ffd2d6;
+    padding:13px 16px;border-radius:12px;font-size:13px;margin-bottom:18px;display:none}
   .banner.show{display:block}
-  .card{background:linear-gradient(180deg,var(--card),var(--bg2));border:1px solid var(--line);
-    border-radius:var(--radius);padding:20px;margin-bottom:18px}
-  .card h2{font-size:12px;text-transform:uppercase;letter-spacing:.09em;color:var(--mut);
-    font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
-  .card h2 .ic{color:var(--accent)}
-  label{font-size:12px;color:var(--mut);font-weight:600;display:block;margin-bottom:6px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:19px;margin-bottom:13px}
+  .card h2{font-family:'Silkscreen',ui-monospace,monospace;font-size:11px;text-transform:uppercase;
+    letter-spacing:.03em;color:var(--mut);font-weight:400;margin-bottom:17px;display:flex;align-items:center;gap:10px}
+  .card h2 .ic{filter:saturate(.4) brightness(1.1);font-size:13px}
+  label{font-size:10px;color:var(--mut);font-weight:600;display:block;margin-bottom:7px;text-transform:uppercase;letter-spacing:.06em}
   .row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
   .field{flex:1;min-width:150px}
   input,select{width:100%;background:var(--bg);border:1px solid var(--line);color:var(--txt);
     padding:11px 13px;border-radius:10px;font-size:14px;font-family:inherit;transition:.15s}
-  input:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(25,227,154,.12)}
-  input.mono{font-family:ui-monospace,'Cascadia Code',Consolas,monospace;font-size:13px;letter-spacing:.3px}
-  .chk{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--mut);cursor:pointer;font-weight:500}
-  .chk input{width:auto}
-  button{background:var(--card2);border:1px solid var(--line);color:var(--txt);padding:11px 18px;
-    border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:.15s;
+  input:focus,select:focus{outline:none;border-color:var(--amber);box-shadow:0 0 0 3px rgba(237,182,75,.14)}
+  input.mono{font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:.3px}
+  .chk{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--mut);cursor:pointer;font-weight:500}
+  .chk input{width:auto;accent-color:var(--amber)}
+  button{background:var(--card2);border:1px solid var(--line);color:var(--txt);padding:11px 17px;
+    border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:.15s;
     display:inline-flex;align-items:center;gap:7px}
-  button:hover:not(:disabled){border-color:var(--accent);background:#213140}
-  button:disabled{opacity:.4;cursor:not-allowed}
-  button.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#042018;border:none}
+  button:hover:not(:disabled){border-color:var(--amber);background:#211d12}
+  button:disabled{opacity:.33;cursor:not-allowed}
+  button.primary{background:var(--amber);color:#1c1500;border:none;font-weight:700}
   button.primary:hover:not(:disabled){filter:brightness(1.08)}
   button.danger{color:var(--err)}
-  .btns{display:flex;gap:10px;flex-wrap:wrap}
-  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px}
-  .tile{background:var(--bg);border:1px solid var(--line);border-radius:13px;padding:15px}
-  .tile .k{font-size:11px;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
-  .tile .v{font-size:26px;font-weight:800;margin-top:5px;letter-spacing:-.02em}
-  .tile .v small{font-size:13px;color:var(--mut);font-weight:600}
-  .tile .v.na{color:var(--dim);font-size:18px}
-  .bar{height:6px;background:var(--line);border-radius:4px;margin-top:9px;overflow:hidden}
-  .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));width:0;transition:.5s}
-  .kv{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+  button.danger:hover:not(:disabled){border-color:var(--err);background:#201113}
+  .btns{display:flex;gap:9px;flex-wrap:wrap}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:10px}
+  .tile{background:var(--tile);border:1px solid var(--line);border-radius:14px;padding:16px 15px}
+  .tile .k{font-size:10px;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+  .tile .v{font-family:'Silkscreen',ui-monospace,monospace;font-size:22px;font-weight:400;margin-top:9px;color:var(--amber)}
+  .tile .v small{font-size:11px;color:var(--mut);font-weight:600;font-family:'Inter',sans-serif}
+  .tile .v.na{color:var(--dim);font-size:16px}
+  .bar{height:5px;background:var(--line);border-radius:4px;margin-top:11px;overflow:hidden}
+  .bar i{display:block;height:100%;background:var(--amber);width:0;transition:.5s;box-shadow:0 0 8px var(--amber)}
+  .cellrow{display:flex;align-items:center;gap:11px;padding:6px 0}
+  .cellrow .cn{font-family:'Silkscreen',ui-monospace,monospace;font-size:9px;color:var(--dim);width:46px;flex-shrink:0}
+  .cellrow .cbar{flex:1;height:7px;background:var(--line);border-radius:4px;overflow:hidden}
+  .cellrow .cbar i{display:block;height:100%;background:var(--amber);border-radius:4px;transition:.4s}
+  .cellrow .cv{font-family:'JetBrains Mono',monospace;font-size:12px;width:64px;text-align:right;color:var(--txt)}
+  .cellrow.low .cbar i{background:var(--err)}.cellrow.low .cv{color:var(--err)}
+  .kv{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}
   .kv:last-child{border:none}
   .kv .k{color:var(--mut);font-weight:500}
-  .kv .v{font-family:ui-monospace,'Cascadia Code',Consolas,monospace;font-size:12.5px;text-align:right;color:var(--txt);word-break:break-all}
-  .hint{font-size:12px;color:var(--dim);margin-top:10px;line-height:1.55}
-  .exp-tag{font-size:10px;background:rgba(255,176,32,.16);color:var(--warn);padding:2px 8px;
-    border-radius:20px;font-weight:700;letter-spacing:.03em;margin-left:auto}
+  .kv .v{font-family:'JetBrains Mono',monospace;font-size:12px;text-align:right;color:var(--txt);word-break:break-all}
+  .hint{font-size:11.5px;color:var(--dim);margin-top:11px;line-height:1.55}
+  .exp-tag{font-family:'Silkscreen',ui-monospace,monospace;font-size:8px;background:rgba(237,182,75,.13);
+    color:var(--amber);padding:4px 8px;border-radius:20px;letter-spacing:.02em;margin-left:auto}
   .slider-wrap{display:flex;align-items:center;gap:14px}
-  input[type=range]{flex:1;accent-color:var(--accent)}
-  .pval{font-size:22px;font-weight:800;min-width:30px;text-align:center}
-  .console{background:#070a0d;border:1px solid var(--line);border-radius:12px;padding:14px;
-    font-family:ui-monospace,'Cascadia Code',Consolas,monospace;font-size:12px;line-height:1.7;height:260px;overflow-y:auto}
+  input[type=range]{flex:1;accent-color:var(--amber)}
+  .pval{font-family:'Silkscreen',ui-monospace,monospace;font-size:19px;color:var(--amber);min-width:30px;text-align:center}
+  .console{background:#060608;border:1px solid var(--line);border-radius:12px;padding:13px;
+    font-family:'JetBrains Mono',monospace;font-size:11.5px;line-height:1.7;height:250px;overflow-y:auto}
   .console .l{display:flex;gap:10px;white-space:pre-wrap;word-break:break-word}
   .console .t{color:var(--dim);flex-shrink:0}
-  .console .m.info{color:#bcd}.console .m.ok{color:var(--ok)}.console .m.err{color:var(--err)}
-  .console .m.warn{color:var(--warn)}.console .m.tx{color:#7cc5ff}.console .m.rx{color:#c79bff}
-  .divider{height:1px;background:var(--line);margin:16px 0}
-  @media(max-width:560px){.wrap{padding-top:14px}.tile .v{font-size:22px}}
+  .console .m.info{color:#9ba3ab}.console .m.ok{color:var(--ok)}.console .m.err{color:var(--err)}
+  .console .m.warn{color:var(--warn)}.console .m.tx{color:#6fb6ff}.console .m.rx{color:#d6a94a}
+  .divider{height:1px;background:var(--line);margin:15px 0}
+  .hero{display:flex;align-items:center;gap:16px;background:linear-gradient(180deg,#16160f,var(--card));
+    border:1px solid var(--amberdim);border-radius:var(--radius);padding:17px 20px;margin-bottom:13px}
+  .hero-label{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.09em;font-weight:600}
+  .hero-name{font-family:'Silkscreen',ui-monospace,monospace;font-size:19px;color:var(--txt);margin-top:7px;word-break:break-word}
+  .hero-unlock{margin-left:auto;background:var(--amber);color:#1c1500;border:none;font-weight:700;
+    padding:15px 22px;border-radius:13px;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;
+    gap:9px;white-space:nowrap;box-shadow:0 0 26px -8px var(--amber);transition:.15s}
+  .hero-unlock:hover:not(:disabled){filter:brightness(1.08)}
+  .hero-unlock:disabled{opacity:.3;cursor:not-allowed;box-shadow:none;background:var(--card2);color:var(--mut)}
+  .tile .v.err-tile{font-family:'Inter',sans-serif;font-size:15px;font-weight:700;line-height:1.25}
+  @media(max-width:480px){.hero{flex-wrap:wrap}.hero-unlock{width:100%;justify-content:center;margin-left:0}}
+  ::-webkit-scrollbar{width:9px;height:9px}
+  ::-webkit-scrollbar-thumb{background:var(--line);border-radius:5px}
+  @media(max-width:560px){.wrap{padding-top:14px}.tile .v{font-size:19px}}
 </style>
 </head>
 <body>
@@ -905,6 +929,15 @@
   </header>
 
   <div class="banner" id="banner"></div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-info">
+      <div class="hero-label">Vélo</div>
+      <div class="hero-name" id="heroName">—</div>
+    </div>
+    <button class="hero-unlock" id="btnHeroUnlock" disabled>🔓 Déverrouiller</button>
+  </div>
 
   <!-- CLÉS -->
   <div class="card">
@@ -952,6 +985,7 @@
       <div class="tile"><div class="k">Vitesse</div><div class="v na" id="tSpeed">—</div></div>
       <div class="tile"><div class="k">Distance</div><div class="v na" id="tDist">—</div></div>
       <div class="tile"><div class="k">Verrou</div><div class="v na" id="tLock">—</div></div>
+      <div class="tile"><div class="k">Codes erreur</div><div class="v na err-tile" id="tErrors">—</div></div>
     </div>
     <div class="btns" style="margin-top:16px">
       <button id="btnRead" disabled>↻ Lire le diagnostic</button>
@@ -968,7 +1002,6 @@
       <div class="kv"><span class="k">Firmware vélo</span><span class="v" id="iBikeFw">—</span></div>
       <div class="kv"><span class="k">Firmware BLE</span><span class="v" id="iBleFw">—</span></div>
       <div class="kv"><span class="k">Firmware contrôleur</span><span class="v" id="iCtrlFw">—</span></div>
-      <div class="kv"><span class="k">Codes erreur</span><span class="v" id="iErrors">—</span></div>
     </div>
     <div class="btns" style="margin-top:14px"><button id="btnMonitor" disabled>👁️ Surveiller les erreurs</button></div>
     <div class="hint">Lit les erreurs en continu (toutes les 2 s) pour attraper les défauts intermittents, comme l'erreur 44 de l'e-shifter.</div>
@@ -1023,6 +1056,26 @@
     <div class="hint">Les payloads d'écriture sont câblés d'après le protocole pymoof mais peuvent demander un ajustement selon ton vélo. Chaque octet envoyé est tracé dans le journal.</div>
   </div>
 
+  <!-- BMS -->
+  <div class="card">
+    <h2><span class="ic">🔋</span> Mode BMS — cellules batterie <span class="exp-tag">CÂBLE UART · PC</span></h2>
+    <div class="btns">
+      <button id="btnBmsConnect">🔌 Connecter la batterie (UART)</button>
+      <button id="btnBmsRead" disabled>🔋 Lire les cellules</button>
+      <button class="danger" id="btnBmsDisconnect" disabled>Déconnecter</button>
+    </div>
+    <div class="grid" style="margin-top:16px">
+      <div class="tile"><div class="k">Tension pack</div><div class="v na" id="bPack">—</div></div>
+      <div class="tile"><div class="k">Charge (SoC)</div><div class="v na" id="bSoc">—</div><div class="bar"><i id="bSocBar"></i></div></div>
+      <div class="tile"><div class="k">Courant</div><div class="v na" id="bCur">—</div></div>
+      <div class="tile"><div class="k">Température</div><div class="v na" id="bTemp">—</div></div>
+      <div class="tile"><div class="k">Cycles</div><div class="v na" id="bCyc">—</div></div>
+      <div class="tile"><div class="k">Écart cellules</div><div class="v na" id="bSpread">—</div></div>
+    </div>
+    <div id="cells" style="margin-top:16px"></div>
+    <div class="hint" id="bmsHint">Branche le câble UART sur la batterie (RX↔TX croisés, TEST à la masse) puis sur le PC. Fonctionne sur Chrome/Edge ordinateur uniquement. L'écart entre cellules est l'indicateur clé : &lt; 50 mV = sain, &gt; 100 mV = cellule fatiguée.</div>
+  </div>
+
   <!-- JOURNAL -->
   <div class="card">
     <h2><span class="ic">📜</span> Journal <button id="btnCopy" style="margin-left:auto;padding:5px 12px;font-size:12px">Copier</button></h2>
@@ -1063,7 +1116,7 @@ function log(msg,cls="info"){
 const hex = bytes => Array.from(bytes).map(b=>b.toString(16).padStart(2,"0")).join("");
 function setStatus(txt,state){ $("statusTxt").textContent=txt; const d=$("dot"); d.className="dot"+(state?" "+state:""); }
 function setCtrl(on){
-  ["btnRead","btnFull","btnUnlock","btnLock","btnPower","btnSound","btnRegion","btnReadCode","btnWriteCode","btnMonitor"].forEach(i=>$(i).disabled=!on);
+  ["btnRead","btnFull","btnUnlock","btnLock","btnPower","btnSound","btnRegion","btnReadCode","btnWriteCode","btnMonitor","btnHeroUnlock"].forEach(i=>$(i).disabled=!on);
   $("power").disabled=!on;
   if(!on && errMonitor){ clearInterval(errMonitor); errMonitor=null; $("btnMonitor").textContent="👁️ Surveiller les erreurs"; }
 }
@@ -1232,12 +1285,7 @@ async function readInfos(){
     const src=dec||raw;
     const codes=[];
     src.forEach((b,bi)=>{ for(let k=0;k<8;k++){ if(b&(1<<k)) codes.push(bi*8+k); } });
-    if(codes.length){
-      const txt=codes.map(c=>"Erreur "+c+(ERR_CODES[c]?" — "+ERR_CODES[c]:"")).join(" · ");
-      $("iErrors").textContent=txt; $("iErrors").style.color="var(--err)";
-    } else {
-      $("iErrors").textContent="Aucune"; $("iErrors").style.color="var(--ok)";
-    }
+    setErrors(codes);
     log(`ERRORS: brut=${hex(raw)} déchiffré=${hex(dec||[])} → codes=[${codes.join(",")}]`,"rx");
   }catch(e){ log("ERRORS: "+e.message,"warn"); }
 }
@@ -1304,8 +1352,15 @@ function refreshBikeSel(selName){
 function loadBike(name){
   const b=getBikes().find(x=>x.name===name);
   if(b){ $("bikeName").value=b.name; $("key").value=b.key; $("ukid").value=b.ukid; }
+  updateHeroName();
 }
-$("bikeSel").onchange=e=>{ if(e.target.value){ loadBike(e.target.value); } else { $("bikeName").value=""; $("key").value=""; $("ukid").value=1; } };
+function updateHeroName(){
+  const n=$("bikeName").value.trim();
+  $("heroName").textContent = n || "Nouveau vélo";
+}
+$("bikeSel").onchange=e=>{ if(e.target.value){ loadBike(e.target.value); } else { $("bikeName").value=""; $("key").value=""; $("ukid").value=1; updateHeroName(); } };
+$("bikeName").oninput=()=>updateHeroName();
+$("btnHeroUnlock").onclick=()=>doCmd(doUnlock);
 $("btnSave").onclick=()=>{
   const name=$("bikeName").value.trim();
   const key=$("key").value.trim().toLowerCase();
@@ -1354,16 +1409,27 @@ async function writeBackupCode(){
 }
 $("btnReadCode").onclick=()=>doCmd(readBackupCode);
 $("btnWriteCode").onclick=()=>doCmd(writeBackupCode);
+let lastErrKey="";
+function setErrors(codes){
+  const t=$("tErrors"); if(!t) return;
+  t.classList.remove("na");
+  if(codes.length){
+    t.textContent=codes.map(c=>c+(ERR_CODES[c]?" "+ERR_CODES[c]:"")).join(" · ");
+    t.style.color="var(--err)";
+  } else {
+    t.textContent="Aucune"; t.style.color="var(--ok)";
+  }
+}
 async function pollErrors(){
   if(busy) return;
   try{
     const {raw,dec}=await readChar(C.ERRORS);
     const src=dec||raw; const codes=[];
     src.forEach((b,bi)=>{ for(let k=0;k<8;k++){ if(b&(1<<k)) codes.push(bi*8+k); } });
-    const txt=codes.length? codes.map(c=>"Erreur "+c+(ERR_CODES[c]?" — "+ERR_CODES[c]:"")).join(" · ") : "Aucune";
-    if($("iErrors").textContent!==txt){
-      $("iErrors").textContent=txt; $("iErrors").style.color=codes.length?"var(--err)":"var(--ok)";
-      log("🔎 "+txt+" (codes=["+codes.join(",")+"])", codes.length?"err":"info");
+    const key=codes.join(",");
+    if(key!==lastErrKey){
+      lastErrKey=key; setErrors(codes);
+      log("🔎 "+(codes.length?codes.map(c=>"Erreur "+c+(ERR_CODES[c]?" — "+ERR_CODES[c]:"")).join(" · "):"Aucune erreur")+" (codes=["+key+"])", codes.length?"err":"info");
     }
   }catch(e){}
 }
@@ -1383,19 +1449,93 @@ $("btnMonitor").onclick=()=>{
 $("btnCopy").onclick=()=>{ const t=Array.from(document.querySelectorAll("#console .l")).map(l=>l.textContent).join("\n");
   navigator.clipboard.writeText(t).then(()=>log("Journal copié ✓","ok")).catch(()=>log("Copie refusée","warn")); };
 
+// ---------- Mode BMS (Web Serial + Modbus RTU) ----------
+let bmsPort=null;
+const BMS_SLAVE=0xAA;
+function crc16(buf){ let c=0xFFFF; for(let i=0;i<buf.length;i++){ c^=buf[i]; for(let j=0;j<8;j++){ c = (c&1)? (c>>1)^0xA001 : c>>1; } } return c; }
+function s16(v){ return v>=0x8000 ? v-0x10000 : v; }
+async function modbusRead(start,count){
+  const req=[BMS_SLAVE,0x03,(start>>8)&0xff,start&0xff,(count>>8)&0xff,count&0xff];
+  const c=crc16(req); req.push(c&0xff,(c>>8)&0xff);
+  const writer=bmsPort.writable.getWriter();
+  await writer.write(new Uint8Array(req)); writer.releaseLock();
+  const need=5+count*2; const buf=[];
+  const reader=bmsPort.readable.getReader();
+  const timer=setTimeout(()=>reader.cancel(),1500);
+  try{
+    while(buf.length<need){ const {value,done}=await reader.read(); if(done) break; if(value) for(const b of value) buf.push(b); }
+  } finally { clearTimeout(timer); try{reader.releaseLock();}catch(_){} }
+  if(buf.length<need) throw new Error("réponse incomplète ("+buf.length+"/"+need+" octets) — vérifie TEST à la masse et le câblage RX/TX");
+  if(buf[0]!==BMS_SLAVE || buf[1]!==0x03) throw new Error("réponse Modbus inattendue");
+  const regs=[]; for(let i=0;i<count;i++) regs.push((buf[3+i*2]<<8)|buf[4+i*2]);
+  return regs;
+}
+async function bmsConnect(){
+  if(!navigator.serial){ log("Web Serial indisponible : utilise Chrome/Edge sur ordinateur.","err"); return; }
+  try{
+    bmsPort=await navigator.serial.requestPort();
+    await bmsPort.open({baudRate:9600,dataBits:8,parity:"none",stopBits:1});
+    log("Câble UART connecté (9600 8N1).","ok");
+    $("btnBmsRead").disabled=false; $("btnBmsDisconnect").disabled=false; $("btnBmsConnect").disabled=true;
+  }catch(e){ log("Connexion UART: "+e.message,"err"); bmsPort=null; }
+}
+async function bmsDisconnect(){
+  try{ if(bmsPort){ await bmsPort.close(); } }catch(_){}
+  bmsPort=null; $("btnBmsRead").disabled=true; $("btnBmsDisconnect").disabled=true; $("btnBmsConnect").disabled=false;
+  log("Câble UART déconnecté.","warn");
+}
+async function bmsReadCells(){
+  if(!bmsPort){ log("Connecte d'abord le câble UART.","warn"); return; }
+  try{
+    // Lecture bloc 0x02..0x2A (41 registres) : état + 10 cellules + min/max
+    const r=await modbusRead(0x0002,41);
+    const temp=((r[1]-2731)/10).toFixed(1);
+    const packV=(r[2]/1000).toFixed(2);
+    const soc=r[3];
+    const cur=(s16(r[4])*10/1000).toFixed(2);
+    const cycles=r[23];
+    const cells=[]; for(let i=0;i<10;i++) cells.push(r[25+i]); // 0x1B..0x24
+    const maxc=r[39], minc=r[40], spread=maxc-minc;
+    // tuiles
+    const set=(id,v,unit)=>{ const t=$(id); t.classList.remove("na"); t.innerHTML=v+(unit?`<small>${unit}</small>`:""); };
+    set("bPack",packV,"V"); set("bSoc",soc,"%"); set("bCur",cur,"A"); set("bTemp",temp,"°C"); set("bCyc",cycles,"");
+    const sp=$("bSpread"); sp.classList.remove("na"); sp.innerHTML=spread+`<small>mV</small>`;
+    sp.style.color = spread>100? "var(--err)" : spread>50? "var(--warn)" : "var(--ok)";
+    $("bSocBar").style.width=Math.max(0,Math.min(100,soc))+"%";
+    // cellules
+    const box=$("cells"); box.innerHTML="";
+    cells.forEach((mv,i)=>{
+      const pct=Math.max(0,Math.min(100,(mv-3000)/(4200-3000)*100));
+      const row=document.createElement("div");
+      row.className="cellrow"+(mv===minc && spread>50?" low":"");
+      row.innerHTML=`<span class="cn">Cell ${i+1}</span><span class="cbar"><i style="width:${pct}%"></i></span><span class="cv">${(mv/1000).toFixed(3)} V</span>`;
+      box.appendChild(row);
+    });
+    log(`BMS lu ✓ — pack ${packV}V, SoC ${soc}%, écart ${spread}mV, cycles ${cycles}`,"ok");
+  }catch(e){ log("Lecture BMS: "+e.message,"err"); }
+}
+$("btnBmsConnect").onclick=bmsConnect;
+$("btnBmsDisconnect").onclick=bmsDisconnect;
+$("btnBmsRead").onclick=bmsReadCells;
+
 // ---------- Boot ----------
 (function boot(){
   // Garage : démarre vide — chacun gère ses propres vélos sur son appareil
   refreshBikeSel();
   const first=getBikes()[0];
   if(first){ $("bikeSel").value=first.name; loadBike(first.name); }
+  updateHeroName();
   if(!window.isSecureContext || !navigator.bluetooth){
     $("banner").classList.add("show");
     $("banner").innerHTML = "⚠️ <b>Web Bluetooth indisponible ici.</b> Ouvre cette page dans son propre onglet <b>Chrome</b> (Android ou ordinateur). Elle ne fonctionne pas dans l'aperçu intégré, ni sur iPhone/Safari.";
     $("btnConnect").disabled=true;
     log("Web Bluetooth non disponible dans ce contexte.","err");
   } else {
-    log("Funmoov v16 prêt. Allume ton vélo et clique « Connecter ».","ok");
+    log("Funmoov v19 prêt. Allume ton vélo et clique « Connecter ».","ok");
+  }
+  if(!navigator.serial){
+    $("btnBmsConnect").disabled=true;
+    $("bmsHint").innerHTML="⚠️ Le mode BMS (câble UART) marche uniquement sur <b>Chrome/Edge ordinateur</b> — pas sur téléphone. Sur PC, branche le câble et clique « Connecter la batterie ».";
   }
 })();
 </script>
