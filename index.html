@@ -1013,10 +1013,10 @@
     <label>Code de déverrouillage (boutons du guidon)</label>
     <div class="row" style="align-items:center">
       <button id="btnReadCode" disabled>👁️ Lire le code actuel</button>
-      <div class="field" style="flex:0 0 150px"><input id="backupCode" placeholder="ex. 2 1 3" spellcheck="false"></div>
+      <div class="field" style="flex:0 0 120px"><input id="backupCode" placeholder="ex. 159" spellcheck="false"></div>
       <button id="btnWriteCode" disabled>✍️ Écrire</button>
     </div>
-    <div class="hint">⚠️ Lis d'abord le code actuel : ça nous confirme le format avant d'en écrire un nouveau. Tu peux toujours déverrouiller via l'appli, donc aucun risque de blocage.</div>
+    <div class="hint">Code à 3 chiffres (1–9), tapé sur le bouton du guidon : 159 = 1 appui · pause · 5 appuis · pause · 9 appuis. ⚠️ La lecture ne renvoie pas le code stocké (sécurité) — la seule vraie vérification est de le taper sur un vélo complet. Tu peux toujours déverrouiller via l'appli.</div>
     <div class="divider"></div>
     <div class="hint">Les payloads d'écriture sont câblés d'après le protocole pymoof mais peuvent demander un ajustement selon ton vélo. Chaque octet envoyé est tracé dans le journal.</div>
   </div>
@@ -1342,10 +1342,11 @@ async function readBackupCode(){
   log("BACKUP_CODE: brut="+hex(raw)+" déchiffré="+(dec?hex(dec):"—"),"rx");
 }
 async function writeBackupCode(){
-  const digits=$("backupCode").value.trim().split(/[\s,]+/).filter(x=>x!=="").map(x=>parseInt(x)).filter(x=>!isNaN(x));
-  if(!digits.length){ log("Entre un code, ex. 2 1 3","warn"); return; }
-  await writeEncrypted(C.BACKUP_CODE, digits, "Code déverrouillage ["+digits.join(" ")+"]");
-  await sleep(400); await readBackupCode();
+  const s=$("backupCode").value.replace(/[^0-9]/g,"");
+  if(s.length<1){ log("Entre un code à 3 chiffres (1 à 9), ex. 159","warn"); return; }
+  const digits=s.split("").map(c=>parseInt(c));
+  await writeEncrypted(C.BACKUP_CODE, digits, "Code déverrouillage ["+digits.join("-")+"]");
+  log("⚠️ Code envoyé. La lecture ne renvoie pas le code (sécurité) : vérifie-le en le tapant sur les boutons d'un vélo complet.","warn");
 }
 $("btnReadCode").onclick=()=>doCmd(readBackupCode);
 $("btnWriteCode").onclick=()=>doCmd(writeBackupCode);
@@ -1364,7 +1365,7 @@ $("btnCopy").onclick=()=>{ const t=Array.from(document.querySelectorAll("#consol
     $("btnConnect").disabled=true;
     log("Web Bluetooth non disponible dans ce contexte.","err");
   } else {
-    log("Funmoov v14 prêt. Allume ton vélo et clique « Connecter ».","ok");
+    log("Funmoov v15 prêt. Allume ton vélo et clique « Connecter ».","ok");
   }
 })();
 </script>
