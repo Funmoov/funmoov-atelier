@@ -1009,6 +1009,15 @@
       <div class="field" style="flex:0 0 120px"><label>Répétitions</label><input type="number" id="soundCount" value="1" min="1" max="10"></div>
       <button id="btnSound" disabled>🔔 Jouer</button>
     </div>
+    <div class="divider"></div>
+    <label>Code de déverrouillage (boutons du guidon)</label>
+    <div class="row" style="align-items:center">
+      <button id="btnReadCode" disabled>👁️ Lire le code actuel</button>
+      <div class="field" style="flex:0 0 150px"><input id="backupCode" placeholder="ex. 2 1 3" spellcheck="false"></div>
+      <button id="btnWriteCode" disabled>✍️ Écrire</button>
+    </div>
+    <div class="hint">⚠️ Lis d'abord le code actuel : ça nous confirme le format avant d'en écrire un nouveau. Tu peux toujours déverrouiller via l'appli, donc aucun risque de blocage.</div>
+    <div class="divider"></div>
     <div class="hint">Les payloads d'écriture sont câblés d'après le protocole pymoof mais peuvent demander un ajustement selon ton vélo. Chaque octet envoyé est tracé dans le journal.</div>
   </div>
 
@@ -1052,7 +1061,7 @@ function log(msg,cls="info"){
 const hex = bytes => Array.from(bytes).map(b=>b.toString(16).padStart(2,"0")).join("");
 function setStatus(txt,state){ $("statusTxt").textContent=txt; const d=$("dot"); d.className="dot"+(state?" "+state:""); }
 function setCtrl(on){
-  ["btnRead","btnFull","btnUnlock","btnLock","btnPower","btnSound","btnRegion"].forEach(i=>$(i).disabled=!on);
+  ["btnRead","btnFull","btnUnlock","btnLock","btnPower","btnSound","btnRegion","btnReadCode","btnWriteCode"].forEach(i=>$(i).disabled=!on);
   $("power").disabled=!on;
 }
 
@@ -1327,6 +1336,18 @@ async function doRegion(){
   log("SPEED_LIMIT relu: brut="+hex(raw)+" déchiffré="+(dec?hex(dec):"—"),"rx");
 }
 $("btnRegion").onclick=()=>doCmd(doRegion);
+async function readBackupCode(){
+  const {raw,dec}=await readChar(C.BACKUP_CODE);
+  log("BACKUP_CODE: brut="+hex(raw)+" déchiffré="+(dec?hex(dec):"—"),"rx");
+}
+async function writeBackupCode(){
+  const digits=$("backupCode").value.trim().split(/[\s,]+/).filter(x=>x!=="").map(x=>parseInt(x)).filter(x=>!isNaN(x));
+  if(!digits.length){ log("Entre un code, ex. 2 1 3","warn"); return; }
+  await writeEncrypted(C.BACKUP_CODE, digits, "Code déverrouillage ["+digits.join(" ")+"]");
+  await sleep(400); await readBackupCode();
+}
+$("btnReadCode").onclick=()=>doCmd(readBackupCode);
+$("btnWriteCode").onclick=()=>doCmd(writeBackupCode);
 $("btnCopy").onclick=()=>{ const t=Array.from(document.querySelectorAll("#console .l")).map(l=>l.textContent).join("\n");
   navigator.clipboard.writeText(t).then(()=>log("Journal copié ✓","ok")).catch(()=>log("Copie refusée","warn")); };
 
@@ -1342,7 +1363,7 @@ $("btnCopy").onclick=()=>{ const t=Array.from(document.querySelectorAll("#consol
     $("btnConnect").disabled=true;
     log("Web Bluetooth non disponible dans ce contexte.","err");
   } else {
-    log("Funmoov v12 prêt. Allume ton vélo et clique « Connecter ».","ok");
+    log("Funmoov v13 prêt. Allume ton vélo et clique « Connecter ».","ok");
   }
 })();
 </script>
