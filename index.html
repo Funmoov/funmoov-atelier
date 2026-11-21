@@ -982,12 +982,27 @@
       <input id="unlockVal" type="number" value="2" min="0" max="255" style="width:70px">
     </div>
     <div class="divider"></div>
-    <label>Niveau d'assistance (0–5)</label>
+    <label>Niveau d'assistance (0–4)</label>
     <div class="slider-wrap">
-      <input type="range" id="power" min="0" max="5" value="3" disabled>
-      <span class="pval" id="powerVal">3</span>
+      <input type="range" id="power" min="0" max="4" value="2" disabled>
+      <span class="pval" id="powerVal">2</span>
       <button id="btnPower" disabled>Appliquer</button>
     </div>
+    <div class="divider"></div>
+    <label>Limite de vitesse / région</label>
+    <div class="row" style="align-items:center">
+      <div class="field" style="flex:0 0 190px">
+        <select id="regionSel">
+          <option value="2">🇪🇺 UE — 25 km/h</option>
+          <option value="4">🇺🇸 US — 32 km/h</option>
+          <option value="0">🇯🇵 Japon — 24 km/h</option>
+          <option value="">valeur libre…</option>
+        </select>
+      </div>
+      <div class="field" style="flex:0 0 90px"><input id="regionVal" type="number" value="2" min="0" max="255"></div>
+      <button id="btnRegion" disabled>Appliquer</button>
+    </div>
+    <div class="hint">⚠️ Valeurs de région à confirmer sur ton vélo (on calibre comme pour le déverrouillage). Dépasser la limite légale locale change le statut du vélo sur la voie publique.</div>
     <div class="divider"></div>
     <div class="row">
       <div class="field" style="flex:0 0 120px"><label>Son (id)</label><input type="number" id="soundId" value="1" min="0" max="255"></div>
@@ -1035,7 +1050,7 @@ function log(msg,cls="info"){
 const hex = bytes => Array.from(bytes).map(b=>b.toString(16).padStart(2,"0")).join("");
 function setStatus(txt,state){ $("statusTxt").textContent=txt; const d=$("dot"); d.className="dot"+(state?" "+state:""); }
 function setCtrl(on){
-  ["btnRead","btnFull","btnUnlock","btnLock","btnPower","btnSound"].forEach(i=>$(i).disabled=!on);
+  ["btnRead","btnFull","btnUnlock","btnLock","btnPower","btnSound","btnRegion"].forEach(i=>$(i).disabled=!on);
   $("power").disabled=!on;
 }
 
@@ -1296,6 +1311,15 @@ $("btnUnlock").onclick=()=>doCmd(doUnlock);
 $("btnLock").onclick=()=>doCmd(doLock);
 $("btnPower").onclick=()=>doCmd(()=>writeEncrypted(C.POWER_LEVEL,[parseInt($("power").value)],"Puissance"));
 $("btnSound").onclick=()=>doCmd(()=>writeEncrypted(C.PLAY_SOUND,[parseInt($("soundId").value),parseInt($("soundCount").value)],"Son"));
+$("regionSel").onchange=e=>{ if(e.target.value!=="") $("regionVal").value=e.target.value; };
+async function doRegion(){
+  const v=parseInt($("regionVal").value)||0;
+  await writeEncrypted(C.SPEED_LIMIT,[v],"Limite vitesse (SPEED_LIMIT="+v+")");
+  await sleep(400);
+  const {raw,dec}=await readChar(C.SPEED_LIMIT);
+  log("SPEED_LIMIT relu: brut="+hex(raw)+" déchiffré="+(dec?hex(dec):"—"),"rx");
+}
+$("btnRegion").onclick=()=>doCmd(doRegion);
 $("btnCopy").onclick=()=>{ const t=Array.from(document.querySelectorAll("#console .l")).map(l=>l.textContent).join("\n");
   navigator.clipboard.writeText(t).then(()=>log("Journal copié ✓","ok")).catch(()=>log("Copie refusée","warn")); };
 
@@ -1311,7 +1335,7 @@ $("btnCopy").onclick=()=>{ const t=Array.from(document.querySelectorAll("#consol
     $("btnConnect").disabled=true;
     log("Web Bluetooth non disponible dans ce contexte.","err");
   } else {
-    log("Funmoov v8 prêt. Allume ton vélo et clique « Connecter ».","ok");
+    log("Funmoov v9 prêt. Allume ton vélo et clique « Connecter ».","ok");
   }
 })();
 </script>
