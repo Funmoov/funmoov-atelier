@@ -1025,6 +1025,8 @@ const SUFFIX = "-e631-4069-944d-b8ca7598ad50";
 const uuid = s => (s + SUFFIX).toLowerCase();
 const SERVICES = { security:"6acc5500", defense:"6acc5520", movement:"6acc5530",
   bikeinfo:"6acc5540", bikestate:"6acc5560", sound:"6acc5570", light:"6acc5580" };
+// Dictionnaire des codes d'erreur VanMoof (à enrichir au fil des réparations)
+const ERR_CODES={ 44:"E-shifter (absent ou défaut)" };
 const C = {
   CHALLENGE:["security","6acc5501"], KEY_INDEX:["security","6acc5502"], BACKUP_CODE:["security","6acc5503"], BIKE_MESSAGE:["security","6acc5505"],
   LOCK_STATE:["defense","6acc5521"], UNLOCK_REQUEST:["defense","6acc5522"], ALARM_STATE:["defense","6acc5523"],
@@ -1215,10 +1217,15 @@ async function readInfos(){
   }
   try{
     const {raw,dec}=await readChar(C.ERRORS);
-    const src=dec||raw; const nonzero=Array.from(src).filter(b=>b!==0);
-    $("iErrors").textContent = nonzero.length? hex(src.slice(0,8)) : "Aucun";
-    $("iErrors").style.color = nonzero.length? "var(--err)":"var(--ok)";
-    log(`ERRORS: brut=${hex(raw)} déchiffré=${hex(dec||[])}`,"rx");
+    const src=dec||raw;
+    const codes=Array.from(src).filter(b=>b!==0);
+    if(codes.length){
+      const txt=codes.map(c=>"Erreur "+c+(ERR_CODES[c]?" — "+ERR_CODES[c]:"")).join(" · ");
+      $("iErrors").textContent=txt; $("iErrors").style.color="var(--err)";
+    } else {
+      $("iErrors").textContent="Aucune"; $("iErrors").style.color="var(--ok)";
+    }
+    log(`ERRORS: brut=${hex(raw)} déchiffré=${hex(dec||[])} → codes=[${codes.join(",")}]`,"rx");
   }catch(e){ log("ERRORS: "+e.message,"warn"); }
 }
 const WRITE_ONLY=["KEY_INDEX","UNLOCK_REQUEST","PLAY_SOUND","BIKE_MESSAGE"];
@@ -1335,7 +1342,7 @@ $("btnCopy").onclick=()=>{ const t=Array.from(document.querySelectorAll("#consol
     $("btnConnect").disabled=true;
     log("Web Bluetooth non disponible dans ce contexte.","err");
   } else {
-    log("Funmoov v11 prêt. Allume ton vélo et clique « Connecter ».","ok");
+    log("Funmoov v12 prêt. Allume ton vélo et clique « Connecter ».","ok");
   }
 })();
 </script>
