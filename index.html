@@ -1021,7 +1021,6 @@ const C = {
   PLAY_SOUND:["sound","6acc5571"], SOUND_VOLUME:["sound","6acc5572"], BELL_SOUND:["sound","6acc5574"],
   LIGHT_MODE:["light","6acc5581"]
 };
-const PRESETS = { "1":{key:"dd408c214ac60dd6cbc5e04e56ab25d8",ukid:1}, "2":{key:"12f90865b9771cc2a52b11383ae5f98b",ukid:2} };
 
 let device=null, server=null, services={}, chars={}, keyBytes=null, userKeyId=1, authed=false;
 
@@ -1302,10 +1301,7 @@ $("btnCopy").onclick=()=>{ const t=Array.from(document.querySelectorAll("#consol
 
 // ---------- Boot ----------
 (function boot(){
-  // Garage : amorce avec le vélo ES3 au premier lancement
-  if(getBikes().length===0){
-    saveBikes([{name:"Mon ES3", key:"dd408c214ac60dd6cbc5e04e56ab25d8", ukid:1}]);
-  }
+  // Garage : démarre vide — chacun gère ses propres vélos sur son appareil
   refreshBikeSel();
   const first=getBikes()[0];
   if(first){ $("bikeSel").value=first.name; loadBike(first.name); }
@@ -1315,7 +1311,7 @@ $("btnCopy").onclick=()=>{ const t=Array.from(document.querySelectorAll("#consol
     $("btnConnect").disabled=true;
     log("Web Bluetooth non disponible dans ce contexte.","err");
   } else {
-    log("Funmoov v7 prêt — mode hors-ligne. Allume ton vélo et clique « Connecter ».","ok");
+    log("Funmoov v8 prêt. Allume ton vélo et clique « Connecter ».","ok");
   }
 })();
 </script>
