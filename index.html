@@ -1071,7 +1071,12 @@
       <div class="tile"><div class="k">Température</div><div class="v na" id="bTemp">—</div></div>
       <div class="tile"><div class="k">Cycles</div><div class="v na" id="bCyc">—</div></div>
       <div class="tile"><div class="k">Écart cellules</div><div class="v na" id="bSpread">—</div></div>
+      <div class="tile"><div class="k">Santé (SoH)</div><div class="v na" id="bSoh">—</div><div class="bar"><i id="bSohBar"></i></div></div>
+      <div class="tile"><div class="k">Capacité restante</div><div class="v na" id="bRemain">—</div></div>
     </div>
+    <div class="kv" style="margin-top:14px"><span class="k">Erreurs BMS</span><span class="v" id="bFault">—</span></div>
+    <div class="kv"><span class="k">Alertes BMS</span><span class="v" id="bWarn">—</span></div>
+    <div class="kv"><span class="k">Numéro de série (ESN)</span><span class="v" id="bEsn">—</span></div>
     <div id="cells" style="margin-top:16px"></div>
     <div class="hint" id="bmsHint">Branche le câble UART sur la batterie (RX↔TX croisés, TEST à la masse) puis sur le PC. Fonctionne sur Chrome/Edge ordinateur uniquement. L'écart entre cellules est l'indicateur clé : &lt; 50 mV = sain, &gt; 100 mV = cellule fatiguée.</div>
   </div>
@@ -1452,6 +1457,9 @@ $("btnCopy").onclick=()=>{ const t=Array.from(document.querySelectorAll("#consol
 // ---------- Mode BMS (Web Serial + Modbus RTU) ----------
 let bmsPort=null;
 const BMS_SLAVE=0xAA;
+const FAULT_FLAGS=["Surchauffe décharge (DOTP)","Sous-temp. décharge (DUTP)","Surchauffe charge (COTP)","Sous-temp. charge (CUTP)","Surintensité décharge 1 (DOCP1)","Surintensité décharge 2 (DOCP2)","Surintensité charge 1 (COCP1)","Surintensité charge 2 (COCP2)","Surtension 1 (OVP1)","Surtension 2 (OVP2)","Sous-tension 1 (UVP1)","Sous-tension 2 (UVP2)","Pic surintensité décharge (PDOCP)","Court-circuit décharge (PDSCP)","Surchauffe MOSFET (MOTP)","Court-circuit (SCP)"];
+const WARN_FLAGS={0:"Surchauffe décharge",1:"Sous-temp. décharge",2:"Surchauffe charge",3:"Sous-temp. charge",4:"Surintensité décharge",6:"Surintensité charge",8:"Surtension",10:"Sous-tension",11:"Charge basse (SoC)",12:"Pic surintensité décharge",14:"Surchauffe MOSFET"};
+function decodeFlags(val,defs){ const out=[]; for(let b=0;b<16;b++){ if(val&(1<<b)){ const n=Array.isArray(defs)?defs[b]:defs[b]; if(n) out.push(n); } } return out; }
 function crc16(buf){ let c=0xFFFF; for(let i=0;i<buf.length;i++){ c^=buf[i]; for(let j=0;j<8;j++){ c = (c&1)? (c>>1)^0xA001 : c>>1; } } return c; }
 function s16(v){ return v>=0x8000 ? v-0x10000 : v; }
 async function modbusRead(start,count){
@@ -1502,6 +1510,19 @@ async function bmsReadCells(){
     const sp=$("bSpread"); sp.classList.remove("na"); sp.innerHTML=spread+`<small>mV</small>`;
     sp.style.color = spread>100? "var(--err)" : spread>50? "var(--warn)" : "var(--ok)";
     $("bSocBar").style.width=Math.max(0,Math.min(100,soc))+"%";
+    // santé & capacité
+    const nominal=r[19], fcc=r[20], remain=r[21];
+    const soh=nominal? Math.round(fcc/nominal*100):0;
+    const sh=$("bSoh"); sh.classList.remove("na"); sh.innerHTML=soh+`<small>%</small>`;
+    sh.style.color = soh>=80? "var(--ok)" : soh>=60? "var(--warn)" : "var(--err)";
+    $("bSohBar").style.width=Math.max(0,Math.min(100,soh))+"%";
+    set("bRemain",remain,"mAh");
+    // erreurs & alertes
+    const faults=decodeFlags(r[0],FAULT_FLAGS), warns=decodeFlags(r[38],WARN_FLAGS);
+    const fe=$("bFault"); fe.textContent=faults.length?faults.join(" · "):"Aucune"; fe.style.color=faults.length?"var(--err)":"var(--ok)";
+    const we=$("bWarn"); we.textContent=warns.length?warns.join(" · "):"Aucune"; we.style.color=warns.length?"var(--warn)":"var(--ok)";
+    let esn=""; for(let i=10;i<=16;i++){ esn+=String.fromCharCode((r[i]>>8)&0xff,r[i]&0xff); }
+    $("bEsn").textContent=esn.replace(/[^\x20-\x7e]+/g,"").trim()||"—";
     // cellules
     const box=$("cells"); box.innerHTML="";
     cells.forEach((mv,i)=>{
@@ -1511,7 +1532,7 @@ async function bmsReadCells(){
       row.innerHTML=`<span class="cn">Cell ${i+1}</span><span class="cbar"><i style="width:${pct}%"></i></span><span class="cv">${(mv/1000).toFixed(3)} V</span>`;
       box.appendChild(row);
     });
-    log(`BMS lu ✓ — pack ${packV}V, SoC ${soc}%, écart ${spread}mV, cycles ${cycles}`,"ok");
+    log(`BMS lu ✓ — pack ${packV}V, SoC ${soc}%, SoH ${soh}%, écart ${spread}mV, cycles ${cycles}, erreurs: ${faults.length?faults.join(", "):"aucune"}`,"ok");
   }catch(e){ log("Lecture BMS: "+e.message,"err"); }
 }
 $("btnBmsConnect").onclick=bmsConnect;
@@ -1531,7 +1552,7 @@ $("btnBmsRead").onclick=bmsReadCells;
     $("btnConnect").disabled=true;
     log("Web Bluetooth non disponible dans ce contexte.","err");
   } else {
-    log("Funmoov v19 prêt. Allume ton vélo et clique « Connecter ».","ok");
+    log("Funmoov v20 prêt. Allume ton vélo et clique « Connecter ».","ok");
   }
   if(!navigator.serial){
     $("btnBmsConnect").disabled=true;
