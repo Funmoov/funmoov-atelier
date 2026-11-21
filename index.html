@@ -993,13 +993,13 @@
     <div class="row" style="align-items:center">
       <div class="field" style="flex:0 0 190px">
         <select id="regionSel">
-          <option value="2">🇪🇺 UE — 25 km/h</option>
-          <option value="4">🇺🇸 US — 32 km/h</option>
-          <option value="0">🇯🇵 Japon — 24 km/h</option>
+          <option value="0">🇪🇺 UE — 25 km/h</option>
+          <option value="1">🇺🇸 US — 32 km/h</option>
+          <option value="2">🇯🇵 Japon — 24 km/h</option>
           <option value="">valeur libre…</option>
         </select>
       </div>
-      <div class="field" style="flex:0 0 90px"><input id="regionVal" type="number" value="2" min="0" max="255"></div>
+      <div class="field" style="flex:0 0 90px"><input id="regionVal" type="number" value="0" min="0" max="255"></div>
       <button id="btnRegion" disabled>Appliquer</button>
     </div>
     <div class="hint">⚠️ Valeurs de région à confirmer sur ton vélo (on calibre comme pour le déverrouillage). Dépasser la limite légale locale change le statut du vélo sur la voie publique.</div>
@@ -1335,7 +1335,7 @@ $("btnCopy").onclick=()=>{ const t=Array.from(document.querySelectorAll("#consol
     $("btnConnect").disabled=true;
     log("Web Bluetooth non disponible dans ce contexte.","err");
   } else {
-    log("Funmoov v9 prêt. Allume ton vélo et clique « Connecter ».","ok");
+    log("Funmoov v11 prêt. Allume ton vélo et clique « Connecter ».","ok");
   }
 })();
 </script>
