@@ -970,6 +970,8 @@
       <div class="kv"><span class="k">Firmware contrôleur</span><span class="v" id="iCtrlFw">—</span></div>
       <div class="kv"><span class="k">Codes erreur</span><span class="v" id="iErrors">—</span></div>
     </div>
+    <div class="btns" style="margin-top:14px"><button id="btnMonitor" disabled>👁️ Surveiller les erreurs</button></div>
+    <div class="hint">Lit les erreurs en continu (toutes les 2 s) pour attraper les défauts intermittents, comme l'erreur 44 de l'e-shifter.</div>
   </div>
 
   <!-- CONTROLE -->
@@ -1061,8 +1063,9 @@ function log(msg,cls="info"){
 const hex = bytes => Array.from(bytes).map(b=>b.toString(16).padStart(2,"0")).join("");
 function setStatus(txt,state){ $("statusTxt").textContent=txt; const d=$("dot"); d.className="dot"+(state?" "+state:""); }
 function setCtrl(on){
-  ["btnRead","btnFull","btnUnlock","btnLock","btnPower","btnSound","btnRegion","btnReadCode","btnWriteCode"].forEach(i=>$(i).disabled=!on);
+  ["btnRead","btnFull","btnUnlock","btnLock","btnPower","btnSound","btnRegion","btnReadCode","btnWriteCode","btnMonitor"].forEach(i=>$(i).disabled=!on);
   $("power").disabled=!on;
+  if(!on && errMonitor){ clearInterval(errMonitor); errMonitor=null; $("btnMonitor").textContent="👁️ Surveiller les erreurs"; }
 }
 
 // ---------- AES-ECB (via aes-js) ----------
@@ -1254,6 +1257,7 @@ async function fullScan(){
 
 // ---------- Commands ----------
 let busy=false;
+let errMonitor=null;
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 async function doCmd(fn){
   if(busy){ log("Opération déjà en cours, patiente une seconde…","warn"); return; }
@@ -1350,6 +1354,32 @@ async function writeBackupCode(){
 }
 $("btnReadCode").onclick=()=>doCmd(readBackupCode);
 $("btnWriteCode").onclick=()=>doCmd(writeBackupCode);
+async function pollErrors(){
+  if(busy) return;
+  try{
+    const {raw,dec}=await readChar(C.ERRORS);
+    const src=dec||raw; const codes=[];
+    src.forEach((b,bi)=>{ for(let k=0;k<8;k++){ if(b&(1<<k)) codes.push(bi*8+k); } });
+    const txt=codes.length? codes.map(c=>"Erreur "+c+(ERR_CODES[c]?" — "+ERR_CODES[c]:"")).join(" · ") : "Aucune";
+    if($("iErrors").textContent!==txt){
+      $("iErrors").textContent=txt; $("iErrors").style.color=codes.length?"var(--err)":"var(--ok)";
+      log("🔎 "+txt+" (codes=["+codes.join(",")+"])", codes.length?"err":"info");
+    }
+  }catch(e){}
+}
+$("btnMonitor").onclick=()=>{
+  if(errMonitor){
+    clearInterval(errMonitor); errMonitor=null;
+    $("btnMonitor").textContent="👁️ Surveiller les erreurs";
+    log("Surveillance des erreurs arrêtée.","info");
+  } else {
+    if(!authed){ log("Authentifie-toi d'abord.","warn"); return; }
+    errMonitor=setInterval(pollErrors,2000);
+    $("btnMonitor").textContent="⏹️ Arrêter la surveillance";
+    log("Surveillance des erreurs activée (toutes les 2 s).","ok");
+    pollErrors();
+  }
+};
 $("btnCopy").onclick=()=>{ const t=Array.from(document.querySelectorAll("#console .l")).map(l=>l.textContent).join("\n");
   navigator.clipboard.writeText(t).then(()=>log("Journal copié ✓","ok")).catch(()=>log("Copie refusée","warn")); };
 
@@ -1365,7 +1395,7 @@ $("btnCopy").onclick=()=>{ const t=Array.from(document.querySelectorAll("#consol
     $("btnConnect").disabled=true;
     log("Web Bluetooth non disponible dans ce contexte.","err");
   } else {
-    log("Funmoov v15 prêt. Allume ton vélo et clique « Connecter ».","ok");
+    log("Funmoov v16 prêt. Allume ton vélo et clique « Connecter ».","ok");
   }
 })();
 </script>
