@@ -1227,7 +1227,8 @@ async function readInfos(){
   try{
     const {raw,dec}=await readChar(C.ERRORS);
     const src=dec||raw;
-    const codes=Array.from(src).filter(b=>b!==0);
+    const codes=[];
+    src.forEach((b,bi)=>{ for(let k=0;k<8;k++){ if(b&(1<<k)) codes.push(bi*8+k); } });
     if(codes.length){
       const txt=codes.map(c=>"Erreur "+c+(ERR_CODES[c]?" — "+ERR_CODES[c]:"")).join(" · ");
       $("iErrors").textContent=txt; $("iErrors").style.color="var(--err)";
@@ -1363,7 +1364,7 @@ $("btnCopy").onclick=()=>{ const t=Array.from(document.querySelectorAll("#consol
     $("btnConnect").disabled=true;
     log("Web Bluetooth non disponible dans ce contexte.","err");
   } else {
-    log("Funmoov v13 prêt. Allume ton vélo et clique « Connecter ».","ok");
+    log("Funmoov v14 prêt. Allume ton vélo et clique « Connecter ».","ok");
   }
 })();
 </script>
