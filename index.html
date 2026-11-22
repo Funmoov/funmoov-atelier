@@ -1022,20 +1022,17 @@
     </div>
     <div class="hint">⚠️ Dépasser la limite légale locale change le statut du vélo sur la voie publique.</div>
     <div class="divider"></div>
-    <label>Tester un son</label>
+    <label>Trouver un son (n'importe quel numéro)</label>
     <div class="row" style="align-items:center">
-      <div class="field" style="flex:0 0 170px"><select id="soundId">
-        <option value="10">Klaxon VanMoof (Horn 1)</option>
-        <option value="11">Klaxon urgent</option>
-        <option value="3">Bip positif</option>
-        <option value="2">Bip négatif</option>
-        <option value="1">Ton</option>
-        <option value="8">Appairage OK</option>
-        <option value="25">Bruit</option>
-      </select></div>
-      <div class="field" style="flex:0 0 90px"><input type="number" id="soundCount" value="1" min="1" max="10" title="Répétitions"></div>
+      <div class="field" style="flex:0 0 110px"><input type="number" id="soundId" value="10" min="0" max="60" title="N° du son"></div>
+      <div class="field" style="flex:0 0 80px"><input type="number" id="soundCount" value="1" min="1" max="10" title="Répétitions"></div>
       <button id="btnSound" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 5 L18.5 12 L7.5 19 Z"/></svg> Jouer</button>
+      <button id="btnSoundNext" disabled title="Jouer le son suivant"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 5 L14 12 L6 19 Z"/><line x1="17" y1="5" x2="17" y2="19"/></svg> Suivant</button>
     </div>
+    <div class="row" style="align-items:center;margin-top:8px">
+      <button id="btnSetBell" disabled title="Fait du son affiché ci-dessus la sonnette du vélo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M18 9 a6 6 0 0 0 -12 0 c0 6.5 -2.5 8 -2.5 8 h17 s-2.5 -1.5 -2.5 -8"/><path d="M10 20 a2.2 2.2 0 0 0 4 0"/></svg> Définir comme sonnette</button>
+    </div>
+    <div class="hint">Balaie les numéros avec « Suivant » jusqu'à trouver le vrai ding-dong, puis « Définir comme sonnette » — ou dis-moi le numéro et je le câble sur le bouton Ding dong.</div>
 
     <div class="divider"></div>
     <div class="hint">Les payloads d'écriture sont câblés d'après le protocole pymoof mais peuvent demander un ajustement selon ton vélo. Chaque octet envoyé est tracé dans le journal.</div>
@@ -1207,7 +1204,7 @@ function log(msg,cls="info"){
 const hex = bytes => Array.from(bytes).map(b=>b.toString(16).padStart(2,"0")).join("");
 function setStatus(txt,state){ $("statusTxt").textContent=txt; const d=$("dot"); d.className="dot"+(state?" "+state:""); }
 function setCtrl(on){
-  ["btnRead","btnFull","btnDiscover","btnRecord","btnUnlock","btnLock","btnSound","btnReadCode","btnWriteCode","btnMonitor","btnHeroUnlock","btnLightAuto","btnLightOn","btnLightOff"].forEach(i=>$(i).disabled=!on);
+  ["btnRead","btnFull","btnDiscover","btnRecord","btnUnlock","btnLock","btnSound","btnSoundNext","btnSetBell","btnReadCode","btnWriteCode","btnMonitor","btnHeroUnlock","btnLightAuto","btnLightOn","btnLightOff"].forEach(i=>$(i).disabled=!on);
   document.querySelectorAll(".segbtn,.soundbtn,.regionbtn").forEach(b=>b.disabled=!on);
   if(!on && errMonitor){ clearInterval(errMonitor); errMonitor=null; $("btnMonitor").textContent="Surveiller les erreurs"; }
   if(!on && recorder){ clearInterval(recorder); recorder=null; $("btnRecord").classList.remove("active"); }
@@ -1539,7 +1536,9 @@ $("btnRecord").onclick=()=>{
 };
 $("btnUnlock").onclick=()=>doCmd(doUnlock);
 $("btnLock").onclick=()=>doCmd(doLock);
-$("btnSound").onclick=()=>doCmd(()=>writeEncrypted(C.PLAY_SOUND,[parseInt($("soundId").value),parseInt($("soundCount").value)],"Son"));
+$("btnSound").onclick=()=>doCmd(()=>writeEncrypted(C.PLAY_SOUND,[parseInt($("soundId").value),parseInt($("soundCount").value)],"Son n°"+$("soundId").value));
+$("btnSoundNext").onclick=()=>{ const el=$("soundId"); el.value=Math.min(60,(parseInt(el.value)||0)+1); doCmd(()=>writeEncrypted(C.PLAY_SOUND,[parseInt(el.value),parseInt($("soundCount").value)],"Son n°"+el.value)); };
+$("btnSetBell").onclick=()=>doCmd(async()=>{ const v=parseInt($("soundId").value); await writeEncrypted(C.BELL_SOUND,[v],"Sonnette n°"+v); log("Sonnette réglée sur le son n°"+v+" ✓","ok"); });
 document.querySelectorAll(".regionbtn").forEach(b=>{
   b.onclick=()=>doCmd(async()=>{
     const v=parseInt(b.dataset.v);
@@ -1748,7 +1747,7 @@ $("btnBmsRead").onclick=bmsReadCells;
     $("btnConnect").disabled=true;
     log("Web Bluetooth non disponible dans ce contexte.","err");
   } else {
-    log("Funmoov v41 prêt. Allume ton vélo et clique « Connecter ».","ok");
+    log("Funmoov v42 prêt. Allume ton vélo et clique « Connecter ».","ok");
   }
   if(!navigator.serial){
     $("btnBmsConnect").disabled=true;
