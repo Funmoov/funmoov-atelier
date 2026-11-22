@@ -860,6 +860,20 @@
   button svg{flex-shrink:0}
   button:not(.primary):hover:not(:disabled){color:var(--amber)}
   button.active{border-color:var(--amber);color:var(--amber);background:#211d12}
+  .seg{display:flex;gap:4px;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:4px}
+  .segbtn{flex:1;background:transparent;border:none;color:var(--txt);padding:11px 0;border-radius:9px;font-family:'Silkscreen',ui-monospace,monospace;font-size:15px;cursor:pointer;transition:.15s;display:block}
+  .segbtn:hover:not(:disabled){color:var(--amber)}
+  .segbtn.active{background:var(--amber);color:#1c1500}
+  .segbtn:disabled{opacity:.35;cursor:not-allowed}
+  .seg-row{display:flex;gap:8px}
+  .seg-row button{flex:1;flex-direction:column;gap:7px;padding:13px 4px;font-size:12px;text-align:center}
+  .seg-row .rn{font-family:'Silkscreen',ui-monospace,monospace;font-size:15px}
+  .seg-row small{font-size:10px;color:var(--mut)}
+  .nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .navbtn{background:var(--card);border:1px solid var(--line);color:var(--mut);padding:9px 15px;border-radius:30px;font-size:12px;font-weight:600;cursor:pointer;transition:.15s;font-family:inherit}
+  .navbtn:hover{color:var(--amber);border-color:var(--amberdim)}
+  .navbtn.active{background:var(--amber);color:#1c1500;border-color:var(--amber)}
+  .page[hidden]{display:none}
   label{font-size:10px;color:var(--mut);font-weight:600;display:block;margin-bottom:7px;text-transform:uppercase;letter-spacing:.06em}
   .row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
   .field{flex:1;min-width:150px}
@@ -914,7 +928,8 @@
     border:1px solid var(--amberdim);border-radius:var(--radius);padding:17px 20px;margin-bottom:13px}
   .hero-label{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.09em;font-weight:600}
   .hero-name{font-family:'Silkscreen',ui-monospace,monospace;font-size:19px;color:var(--txt);margin-top:7px;word-break:break-word}
-  .hero-unlock{margin-left:auto;background:var(--amber);color:#1c1500;border:none;font-weight:700;
+  .hero-bat{margin-left:auto;display:flex;align-items:center;gap:7px;font-family:'Silkscreen',ui-monospace,monospace;font-size:15px;color:var(--amber)}
+  .hero-unlock{background:var(--amber);color:#1c1500;border:none;font-weight:700;
     padding:15px 22px;border-radius:13px;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;
     gap:9px;white-space:nowrap;box-shadow:0 0 26px -8px var(--amber);transition:.15s}
   .hero-unlock:hover:not(:disabled){filter:brightness(1.08)}
@@ -947,87 +962,81 @@
       <div class="hero-label">Vélo</div>
       <div class="hero-name" id="heroName">—</div>
     </div>
+    <div class="hero-bat" id="heroBat"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="8" width="16" height="9" rx="2.2"/><line x1="21" y1="11" x2="21" y2="14"/></svg><span id="heroBatVal">—</span></div>
     <button class="hero-unlock" id="btnHeroUnlock" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="11" width="15" height="9.5" rx="2"/><path d="M8 11 V7 a4 4 0 0 1 7.7 -1.5"/><circle cx="12" cy="15.5" r="1.3" fill="currentColor" stroke="none"/></svg> Déverrouiller</button>
   </div>
 
+  <nav class="nav">
+    <button class="navbtn active" data-page="controle">Contrôle</button>
+    <button class="navbtn" data-page="velos">Mes vélos</button>
+    <button class="navbtn" data-page="diag">Diagnostic</button>
+    <button class="navbtn" data-page="bms">BMS</button>
+    <button class="navbtn" data-page="code">Code</button>
+    <button class="navbtn" data-page="journal">Journal</button>
+  </nav>
+  <div class="page" id="page-controle">
   <!-- CONTROLE -->
   <div class="card">
     <h2><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="8" x2="20" y2="8"/><line x1="4" y1="16" x2="20" y2="16"/><circle cx="9" cy="8" r="2.3" fill="var(--card)"/><circle cx="15" cy="16" r="2.3" fill="var(--card)"/></svg></span> Contrôle <span class="exp-tag">EXPÉRIMENTAL</span></h2>
-    <div class="btns" style="align-items:center">
+    <div class="btns">
       <button id="btnLock" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="11" width="15" height="9.5" rx="2"/><path d="M8 11 V7 a4 4 0 0 1 8 0 v4"/><circle cx="12" cy="15.5" r="1.3" fill="currentColor" stroke="none"/></svg> Verrouiller</button>
       <button id="btnUnlock" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="11" width="15" height="9.5" rx="2"/><path d="M8 11 V7 a4 4 0 0 1 7.7 -1.5"/><circle cx="12" cy="15.5" r="1.3" fill="currentColor" stroke="none"/></svg> Déverrouiller</button>
-      <span style="font-size:12px;color:var(--mut)">valeur à tester :</span>
-      <input id="unlockVal" type="number" value="2" min="0" max="255" style="width:70px">
     </div>
     <div class="divider"></div>
-    <label>Niveau d'assistance (0–4)</label>
-    <div class="slider-wrap">
-      <input type="range" id="power" min="0" max="4" value="2" disabled>
-      <span class="pval" id="powerVal">2</span>
-      <button id="btnPower" disabled>Appliquer</button>
+    <label>Assistance moteur</label>
+    <div class="seg" id="powerSeg">
+      <button class="segbtn" data-v="0" disabled>0</button>
+      <button class="segbtn" data-v="1" disabled>1</button>
+      <button class="segbtn" data-v="2" disabled>2</button>
+      <button class="segbtn" data-v="3" disabled>3</button>
+      <button class="segbtn" data-v="4" disabled>4</button>
     </div>
     <div class="divider"></div>
-    <label>Limite de vitesse / région</label>
-    <div class="row" style="align-items:center">
-      <div class="field" style="flex:0 0 190px">
-        <select id="regionSel">
-          <option value="0">🇪🇺 UE — 25 km/h</option>
-          <option value="1">🇺🇸 US — 32 km/h</option>
-          <option value="2">🇯🇵 Japon — 24 km/h</option>
-          <option value="">valeur libre…</option>
-        </select>
-      </div>
-      <div class="field" style="flex:0 0 90px"><input id="regionVal" type="number" value="0" min="0" max="255"></div>
-      <button id="btnRegion" disabled>Appliquer</button>
+    <label>Lumières</label>
+    <div class="btns seg-row">
+      <button id="btnLightAuto" disabled><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><text x="12" y="15" text-anchor="middle" font-size="7.5" font-weight="700" fill="currentColor" stroke="none" font-family="Arial,sans-serif">A</text><line x1="12" y1="1.5" x2="12" y2="3.5"/><line x1="12" y1="20.5" x2="12" y2="22.5"/><line x1="1.5" y1="12" x2="3.5" y2="12"/><line x1="20.5" y1="12" x2="22.5" y2="12"/><line x1="4.6" y1="4.6" x2="6" y2="6"/><line x1="18" y1="18" x2="19.4" y2="19.4"/><line x1="4.6" y1="19.4" x2="6" y2="18"/><line x1="18" y1="6" x2="19.4" y2="4.6"/></svg> Auto</button>
+      <button id="btnLightOn" disabled><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><line x1="12" y1="1.5" x2="12" y2="3.5"/><line x1="12" y1="20.5" x2="12" y2="22.5"/><line x1="1.5" y1="12" x2="3.5" y2="12"/><line x1="20.5" y1="12" x2="22.5" y2="12"/><line x1="4.6" y1="4.6" x2="6" y2="6"/><line x1="18" y1="18" x2="19.4" y2="19.4"/><line x1="4.6" y1="19.4" x2="6" y2="18"/><line x1="18" y1="6" x2="19.4" y2="4.6"/></svg> On</button>
+      <button id="btnLightOff" disabled><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1.5" x2="12" y2="3.5"/><line x1="12" y1="20.5" x2="12" y2="22.5"/><line x1="1.5" y1="12" x2="3.5" y2="12"/><line x1="20.5" y1="12" x2="22.5" y2="12"/><line x1="4.6" y1="4.6" x2="6" y2="6"/><line x1="18" y1="18" x2="19.4" y2="19.4"/><line x1="4.6" y1="19.4" x2="6" y2="18"/><line x1="18" y1="6" x2="19.4" y2="4.6"/><line x1="3.5" y1="3.5" x2="20.5" y2="20.5" stroke-width="2"/></svg> Off</button>
     </div>
-    <div class="hint">⚠️ Valeurs de région à confirmer sur ton vélo (on calibre comme pour le déverrouillage). Dépasser la limite légale locale change le statut du vélo sur la voie publique.</div>
     <div class="divider"></div>
-    <label>Sonnette (son du klaxon)</label>
-    <div class="row" style="align-items:center">
-      <div class="field" style="flex:0 0 200px"><select id="bellTone">
-        <option value="1">Klaxon VanMoof</option>
-        <option value="22">Classique (Bell)</option>
-        <option value="23">Fête (Party)</option>
-        <option value="24">Corne de brume (Boat)</option>
-      </select></div>
-      <button id="btnBell" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M18 9 a6 6 0 0 0 -12 0 c0 6.5 -2.5 8 -2.5 8 h17 s-2.5 -1.5 -2.5 -8"/><path d="M10 20 a2.2 2.2 0 0 0 4 0"/></svg> Définir la sonnette</button>
+    <label>Sons (sonnette)</label>
+    <div class="btns seg-row">
+      <button class="soundbtn" data-v="22" disabled><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M12 4 l1.3 4.2 4.2 1.3 -4.2 1.3 -1.3 4.2 -1.3 -4.2 -4.2 -1.3 4.2 -1.3 Z"/><path d="M18.5 14 l.6 1.9 1.9 .6 -1.9 .6 -.6 1.9 -.6 -1.9 -1.9 -.6 1.9 -.6 Z"/></svg> Ping</button>
+      <button class="soundbtn" data-v="23" disabled><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M3 21 L10 8.5 L15.5 14 Z"/><line x1="13" y1="3.5" x2="13" y2="5.5"/><line x1="16.8" y1="5" x2="18.3" y2="3.5"/><line x1="18" y1="9" x2="20" y2="9"/><circle cx="15.5" cy="11.5" r=".7" fill="currentColor" stroke="none"/></svg> Party</button>
+      <button class="soundbtn" data-v="10" disabled><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M3 9.5 h3.5 L12 5.5 v13 L6.5 14.5 H3 Z"/><path d="M15.5 9 a4.5 4.5 0 0 1 0 6"/><path d="M18 6.5 a8 8 0 0 1 0 11"/></svg> VanMoof</button>
+      <button class="soundbtn" data-v="24" disabled><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M18 9 a6 6 0 0 0 -12 0 c0 6.5 -2.5 8 -2.5 8 h17 s-2.5 -1.5 -2.5 -8"/><path d="M10 20 a2.2 2.2 0 0 0 4 0"/></svg> Ding dong</button>
     </div>
-    <div class="hint">Change le son joué quand on appuie sur la sonnette du guidon, comme l'app VanMoof. À tester en appuyant sur la sonnette du vélo après l'avoir défini.</div>
+    <div class="hint">Son de la sonnette du guidon. Valeurs à confirmer (Ping=22, Party=23, VanMoof=10, Ding dong=24) — le son choisi reste en ambre.</div>
+    <div class="divider"></div>
+    <label>Limite de vitesse</label>
+    <div class="btns seg-row">
+      <button class="regionbtn" data-v="0" disabled><span class="rn">EU</span><small>25 km/h</small></button>
+      <button class="regionbtn" data-v="2" disabled><span class="rn">JP</span><small>24 km/h</small></button>
+      <button class="regionbtn" data-v="1" disabled><span class="rn">US</span><small>32 km/h</small></button>
+    </div>
+    <div class="hint">⚠️ Dépasser la limite légale locale change le statut du vélo sur la voie publique.</div>
     <div class="divider"></div>
     <label>Tester un son</label>
     <div class="row" style="align-items:center">
       <div class="field" style="flex:0 0 170px"><select id="soundId">
-        <option value="1">Klaxon VanMoof</option>
-        <option value="10">Klaxon (Horn 1)</option>
+        <option value="10">Klaxon VanMoof (Horn 1)</option>
         <option value="11">Klaxon urgent</option>
         <option value="3">Bip positif</option>
         <option value="2">Bip négatif</option>
+        <option value="1">Ton</option>
         <option value="8">Appairage OK</option>
         <option value="25">Bruit</option>
       </select></div>
       <div class="field" style="flex:0 0 90px"><input type="number" id="soundCount" value="1" min="1" max="10" title="Répétitions"></div>
       <button id="btnSound" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 5 L18.5 12 L7.5 19 Z"/></svg> Jouer</button>
     </div>
-    <div class="divider"></div>
-    <label>Lumières</label>
-    <div class="btns">
-      <button id="btnLightAuto" disabled><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><text x="12" y="15" text-anchor="middle" font-size="7.5" font-weight="700" fill="currentColor" stroke="none" font-family="Arial,sans-serif">A</text><line x1="12" y1="1.5" x2="12" y2="3.5"/><line x1="12" y1="20.5" x2="12" y2="22.5"/><line x1="1.5" y1="12" x2="3.5" y2="12"/><line x1="20.5" y1="12" x2="22.5" y2="12"/><line x1="4.6" y1="4.6" x2="6" y2="6"/><line x1="18" y1="18" x2="19.4" y2="19.4"/><line x1="4.6" y1="19.4" x2="6" y2="18"/><line x1="18" y1="6" x2="19.4" y2="4.6"/></svg> Auto</button>
-      <button id="btnLightOn" disabled><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><line x1="12" y1="1.5" x2="12" y2="3.5"/><line x1="12" y1="20.5" x2="12" y2="22.5"/><line x1="1.5" y1="12" x2="3.5" y2="12"/><line x1="20.5" y1="12" x2="22.5" y2="12"/><line x1="4.6" y1="4.6" x2="6" y2="6"/><line x1="18" y1="18" x2="19.4" y2="19.4"/><line x1="4.6" y1="19.4" x2="6" y2="18"/><line x1="18" y1="6" x2="19.4" y2="4.6"/></svg> On</button>
-      <button id="btnLightOff" disabled><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1.5" x2="12" y2="3.5"/><line x1="12" y1="20.5" x2="12" y2="22.5"/><line x1="1.5" y1="12" x2="3.5" y2="12"/><line x1="20.5" y1="12" x2="22.5" y2="12"/><line x1="4.6" y1="4.6" x2="6" y2="6"/><line x1="18" y1="18" x2="19.4" y2="19.4"/><line x1="4.6" y1="19.4" x2="6" y2="18"/><line x1="18" y1="6" x2="19.4" y2="4.6"/><line x1="3.5" y1="3.5" x2="20.5" y2="20.5" stroke-width="2"/></svg> Off</button>
-    </div>
-    <div class="hint">Mode d'éclairage, comme l'app VanMoof (Auto=0, On=1, Off=2, confirmés sur vélo). Le bouton actif reste en ambre.</div>
-    <div class="divider"></div>
-    <label>Code de déverrouillage (boutons du guidon)</label>
-    <div class="row" style="align-items:center">
-      <button id="btnReadCode" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12 s4 -6.5 10 -6.5 10 6.5 10 6.5 -4 6.5 -10 6.5 -10 -6.5 -10 -6.5z"/><circle cx="12" cy="12" r="2.8"/></svg> Lire le code actuel</button>
-      <div class="field" style="flex:0 0 120px"><input id="backupCode" placeholder="ex. 159" spellcheck="false"></div>
-      <button id="btnWriteCode" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20 h3.5 L19 8.5 a1.8 1.8 0 0 0 0 -2.5 l-1 -1 a1.8 1.8 0 0 0 -2.5 0 L4 16.5 Z"/><line x1="13.5" y1="8.5" x2="17.5" y2="12.5"/></svg> Écrire</button>
-    </div>
-    <div class="hint">Code à 3 chiffres (1–9), tapé sur le bouton du guidon : 159 = 1 appui · pause · 5 appuis · pause · 9 appuis. ⚠️ La lecture ne renvoie pas le code stocké (sécurité) — la seule vraie vérification est de le taper sur un vélo complet. Tu peux toujours déverrouiller via l'appli.</div>
+
     <div class="divider"></div>
     <div class="hint">Les payloads d'écriture sont câblés d'après le protocole pymoof mais peuvent demander un ajustement selon ton vélo. Chaque octet envoyé est tracé dans le journal.</div>
   </div>
 
+  </div>
+  <div class="page" id="page-velos" hidden>
   <!-- CLÉS -->
   <div class="card">
     <h2><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="16.5" r="3.3"/><circle cx="18" cy="16.5" r="3.3"/><path d="M6 16.5 L10.5 8 H15.5 M9.5 8 H13 M13 8 L18 16.5"/><circle cx="12" cy="6.5" r="1"/></svg></span> Mes vélos</h2>
@@ -1065,6 +1074,8 @@
     </div>
   </div>
 
+  </div>
+  <div class="page" id="page-diag" hidden>
   <!-- DIAGNOSTIC -->
   <div class="card">
     <h2><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13 h3 l2.5 -7 l3.5 13 l2.5 -8 h6.5"/></svg></span> Diagnostic</h2>
@@ -1079,8 +1090,10 @@
     <div class="btns" style="margin-top:16px">
       <button id="btnRead" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11.5 a8 8 0 1 0 -2.2 5.4"/><polyline points="20 4.5 20 11.5 13.5 11.5"/></svg> Lire le diagnostic</button>
       <button id="btnFull" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.5"/><line x1="15.5" y1="15.5" x2="21" y2="21"/></svg> Scan complet (brut)</button>
+      <button id="btnDiscover" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/><line x1="16" y1="16" x2="21" y2="21"/></svg> Découverte complète</button>
+      <button id="btnRecord" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.5" fill="currentColor" stroke="none"/></svg> Enregistrer (roulage)</button>
     </div>
-    <div class="hint">Le « scan complet » lit chaque caractéristique et affiche l'hex brut + déchiffré dans le journal — pratique pour décoder les cellules batterie et les codes erreur.</div>
+    <div class="hint">« Scan complet » lit les caractéristiques connues. « Découverte complète » énumère <b>toutes</b> les caractéristiques du vélo (même non mappées) — c'est l'outil pour trouver des fonctions cachées comme le mode de vitesse.</div>
   </div>
 
   <!-- INFOS -->
@@ -1096,6 +1109,8 @@
     <div class="hint">Lit les erreurs en continu (toutes les 2 s) pour attraper les défauts intermittents, comme l'erreur 44 de l'e-shifter.</div>
   </div>
 
+  </div>
+  <div class="page" id="page-bms" hidden>
   <!-- BMS -->
   <div class="card">
     <h2><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="8" width="16" height="9" rx="2.2"/><line x1="21" y1="11" x2="21" y2="14"/><line x1="6" y1="11" x2="6" y2="14"/><line x1="9.5" y1="11" x2="9.5" y2="14"/></svg></span> Mode BMS — cellules batterie <span class="exp-tag">CÂBLE UART · PC</span></h2>
@@ -1121,10 +1136,26 @@
     <div class="hint" id="bmsHint">Branche le câble UART sur la batterie (RX↔TX croisés, TEST à la masse) puis sur le PC. Fonctionne sur Chrome/Edge ordinateur uniquement. L'écart entre cellules est l'indicateur clé : &lt; 50 mV = sain, &gt; 100 mV = cellule fatiguée.</div>
   </div>
 
+  </div>
+  <div class="page" id="page-code" hidden>
+  <!-- CODE -->
+  <div class="card">
+    <h2><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="11" width="15" height="9.5" rx="2"/><path d="M8 11 V7 a4 4 0 0 1 8 0 v4"/><circle cx="12" cy="15.5" r="1.3" fill="currentColor" stroke="none"/></svg></span> Code de déverrouillage</h2>
+    <div class="row" style="align-items:center">
+      <button id="btnReadCode" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12 s4 -6.5 10 -6.5 10 6.5 10 6.5 -4 6.5 -10 6.5 -10 -6.5 -10 -6.5z"/><circle cx="12" cy="12" r="2.8"/></svg> Lire le code actuel</button>
+      <div class="field" style="flex:0 0 120px"><input id="backupCode" placeholder="ex. 159" spellcheck="false"></div>
+      <button id="btnWriteCode" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20 h3.5 L19 8.5 a1.8 1.8 0 0 0 0 -2.5 l-1 -1 a1.8 1.8 0 0 0 -2.5 0 L4 16.5 Z"/><line x1="13.5" y1="8.5" x2="17.5" y2="12.5"/></svg> Écrire</button>
+    </div>
+    <div class="hint">Code à 3 chiffres (1–9), tapé sur le bouton du guidon : 159 = 1 appui · pause · 5 appuis · pause · 9 appuis. ⚠️ La lecture ne renvoie pas le code stocké (sécurité) — la seule vraie vérification est de le taper sur un vélo complet. Tu peux toujours déverrouiller via l'appli.</div>
+  </div>
+
+  </div>
+  <div class="page" id="page-journal" hidden>
   <!-- JOURNAL -->
   <div class="card">
     <h2><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2.2"/><line x1="8.5" y1="8" x2="15.5" y2="8"/><line x1="8.5" y1="12" x2="15.5" y2="12"/><line x1="8.5" y1="16" x2="12.5" y2="16"/></svg></span> Journal <button id="btnCopy" style="margin-left:auto;padding:5px 12px;font-size:12px">Copier</button></h2>
     <div class="console" id="console"></div>
+  </div>
   </div>
 </div>
 
@@ -1161,9 +1192,10 @@ function log(msg,cls="info"){
 const hex = bytes => Array.from(bytes).map(b=>b.toString(16).padStart(2,"0")).join("");
 function setStatus(txt,state){ $("statusTxt").textContent=txt; const d=$("dot"); d.className="dot"+(state?" "+state:""); }
 function setCtrl(on){
-  ["btnRead","btnFull","btnUnlock","btnLock","btnPower","btnSound","btnRegion","btnReadCode","btnWriteCode","btnMonitor","btnHeroUnlock","btnLightAuto","btnLightOn","btnLightOff","btnBell"].forEach(i=>$(i).disabled=!on);
-  $("power").disabled=!on;
+  ["btnRead","btnFull","btnDiscover","btnRecord","btnUnlock","btnLock","btnSound","btnReadCode","btnWriteCode","btnMonitor","btnHeroUnlock","btnLightAuto","btnLightOn","btnLightOff"].forEach(i=>$(i).disabled=!on);
+  document.querySelectorAll(".segbtn,.soundbtn,.regionbtn").forEach(b=>b.disabled=!on);
   if(!on && errMonitor){ clearInterval(errMonitor); errMonitor=null; $("btnMonitor").textContent="Surveiller les erreurs"; }
+  if(!on && recorder){ clearInterval(recorder); recorder=null; $("btnRecord").classList.remove("active"); }
 }
 
 // ---------- AES-ECB (via aes-js) ----------
@@ -1190,6 +1222,7 @@ async function authenticate(){
   authed=true; setStatus("Authentifié","auth"); setCtrl(true);
   log("Authentification envoyée ✓ ("+how+", user_key_id="+userKeyId+")","ok");
   await subscribeNotifs();
+  try{ await readDiag(); }catch(_){}
 }
 // read raw + decrypted; returns {raw, dec}
 async function readChar(def){
@@ -1253,6 +1286,7 @@ async function connect(){
   }catch(e){ log("Erreur connexion: "+e.message,"err"); setStatus("Déconnecté",""); }
 }
 function onDisconnect(){ authed=false; setStatus("Déconnecté",""); setCtrl(false);
+  $("heroBatVal").textContent="—";
   $("btnAuth").disabled=true; $("btnDisconnect").disabled=true; $("btnConnect").disabled=false;
   log("Vélo déconnecté.","warn"); }
 function disconnect(){ if(device&&device.gatt.connected) device.gatt.disconnect(); }
@@ -1284,6 +1318,7 @@ async function tile(cDef,tileId,barId,unit,mode){
     const val = dec? dec[0] : raw[0];
     const t=$(tileId); t.classList.remove("na");
     t.innerHTML = val+`<small>${unit}</small>`;
+    if(tileId==="tMotBat"){ $("heroBatVal").textContent=val+"%"; }
     if(barId){ const p=Math.max(0,Math.min(100,val)); $(barId).style.width=p+"%"; }
     log(`${cDef}: brut=${hex(raw)} déchiffré=${dec?hex(dec):"—"} → ${val}${unit}`,"rx");
   }catch(e){ log(`${cDef}: ${e.message}`,"warn"); }
@@ -1359,8 +1394,7 @@ async function doCmd(fn){
   finally{ busy=false; }
 }
 async function doUnlock(){
-  const v=parseInt($("unlockVal").value)||0;
-  await writeEncrypted(C.LOCK_STATE,[v],"Déverrouiller (LOCK_STATE="+v+")");
+  await writeEncrypted(C.LOCK_STATE,[2],"Déverrouiller");
   await sleep(400); await readLock();
 }
 async function subscribeNotifs(){
@@ -1422,25 +1456,86 @@ $("btnDelete").onclick=()=>{
   saveBikes(a); refreshBikeSel(""); $("bikeName").value=""; $("key").value=""; $("ukid").value=1;
   log("Vélo supprimé.","warn");
 };
-$("power").oninput=e=>$("powerVal").textContent=e.target.value;
 $("btnConnect").onclick=connect;
 $("btnDisconnect").onclick=disconnect;
 $("btnAuth").onclick=()=>doCmd(authenticate);
 $("btnRead").onclick=()=>doCmd(readDiag);
 $("btnFull").onclick=()=>doCmd(fullScan);
+async function discoverAll(){
+  if(!server){ log("Connecte-toi d'abord.","warn"); return; }
+  setStatus("Découverte…","busy");
+  log("=== DÉCOUVERTE COMPLÈTE ===","warn");
+  // noms connus pour repérer les inconnues
+  const known={}; for(const k in C){ known[C[k][1]]=k; }
+  try{
+    const services=await server.getPrimaryServices();
+    for(const svc of services){
+      log("Service "+svc.uuid.slice(4,8),"info");
+      const chars=await svc.getCharacteristics();
+      for(const ch of chars){
+        const short=ch.uuid.slice(4,8);
+        const name=known[short]||"??? INCONNUE";
+        const props=propStr(ch.properties);
+        let val="";
+        if(ch.properties.read){
+          try{ const dv=await ch.readValue(); const raw=new Uint8Array(dv.buffer.slice(0));
+            let dec=null; try{dec=ecbDec(pad16(raw));}catch(_){}
+            val=" brut="+hex(raw)+" déchiffré="+(dec?hex(dec):"—");
+          }catch(e){ val=" (lecture refusée)"; }
+        }
+        log("  "+short+" "+name+" ["+props+"]"+val, name.startsWith("???")?"warn":"rx");
+      }
+    }
+  }catch(e){ log("Découverte: "+e.message,"err"); }
+  log("=== FIN DÉCOUVERTE ===","warn");
+  setStatus("Authentifié","auth");
+}
+$("btnDiscover").onclick=()=>doCmd(discoverAll);
+let recorder=null; const recSnap={}; const REC_SKIP=["5531","5532"]; // DISTANCE, SPEED = bruit en roulant
+async function recordTick(){
+  if(busy||!server) return;
+  try{
+    const services=await server.getPrimaryServices();
+    const KN={}; for(const k in C) KN[C[k][1]]=k;
+    for(const svc of services){
+      let chars; try{ chars=await svc.getCharacteristics(); }catch(_){ continue; }
+      for(const ch of chars){
+        if(!ch.properties.read) continue;
+        const short=ch.uuid.slice(4,8);
+        if(REC_SKIP.includes(short)) continue;
+        try{ const dv=await ch.readValue(); const raw=new Uint8Array(dv.buffer.slice(0));
+          let dec=null; try{dec=ecbDec(pad16(raw));}catch(_){}
+          const v=hex(dec||raw);
+          if(recSnap[short]!==undefined && recSnap[short]!==v){
+            log("\u0394 "+short+" "+(KN[short]||"???")+": "+recSnap[short]+" \u2192 "+v, KN[short]?"rx":"warn");
+          }
+          recSnap[short]=v;
+        }catch(_){}
+      }
+    }
+  }catch(_){}
+}
+$("btnRecord").onclick=()=>{
+  if(recorder){ clearInterval(recorder); recorder=null; $("btnRecord").classList.remove("active"); log("Enregistrement arr\u00eat\u00e9.","info"); }
+  else { if(!authed){ log("Authentifie-toi d'abord.","warn"); return; }
+    for(const k in recSnap) delete recSnap[k];
+    recorder=setInterval(recordTick,2000); $("btnRecord").classList.add("active");
+    log("Enregistrement roulage activ\u00e9 \u2014 roule, puis reviens voir le journal (les \u0394 montrent ce qui change).","ok");
+  }
+};
 $("btnUnlock").onclick=()=>doCmd(doUnlock);
 $("btnLock").onclick=()=>doCmd(doLock);
-$("btnPower").onclick=()=>doCmd(()=>writeEncrypted(C.POWER_LEVEL,[parseInt($("power").value)],"Puissance"));
 $("btnSound").onclick=()=>doCmd(()=>writeEncrypted(C.PLAY_SOUND,[parseInt($("soundId").value),parseInt($("soundCount").value)],"Son"));
-$("regionSel").onchange=e=>{ if(e.target.value!=="") $("regionVal").value=e.target.value; };
-async function doRegion(){
-  const v=parseInt($("regionVal").value)||0;
-  await writeEncrypted(C.SPEED_LIMIT,[v],"Limite vitesse (SPEED_LIMIT="+v+")");
-  await sleep(400);
-  const {raw,dec}=await readChar(C.SPEED_LIMIT);
-  log("SPEED_LIMIT relu: brut="+hex(raw)+" déchiffré="+(dec?hex(dec):"—"),"rx");
-}
-$("btnRegion").onclick=()=>doCmd(doRegion);
+document.querySelectorAll(".regionbtn").forEach(b=>{
+  b.onclick=()=>doCmd(async()=>{
+    const v=parseInt(b.dataset.v);
+    await writeEncrypted(C.SPEED_LIMIT,[v],"Limite vitesse "+b.querySelector(".rn").textContent);
+    await sleep(300);
+    const r=await readChar(C.SPEED_LIMIT);
+    log("SPEED_LIMIT relu: "+((r.dec||r.raw)[0]),"rx");
+    document.querySelectorAll(".regionbtn").forEach(x=>x.classList.toggle("active",x===b));
+  });
+});
 async function setLight(mode,label){
   await writeEncrypted(C.LIGHT_MODE,[mode],"Lumières "+label);
   await sleep(300);
@@ -1454,11 +1549,27 @@ async function setBell(){
   const {raw,dec}=await readChar(C.BELL_SOUND);
   log("BELL_SOUND relu: "+(dec||raw)[0],"rx");
 }
-$("btnBell").onclick=()=>doCmd(setBell);
 function lightActive(id){ ["btnLightAuto","btnLightOn","btnLightOff"].forEach(i=>$(i).classList.toggle("active",i===id)); }
 $("btnLightAuto").onclick=()=>doCmd(async()=>{ await setLight(0,"Auto"); lightActive("btnLightAuto"); });
 $("btnLightOn").onclick=()=>doCmd(async()=>{ await setLight(1,"On"); lightActive("btnLightOn"); });
 $("btnLightOff").onclick=()=>doCmd(async()=>{ await setLight(2,"Off"); lightActive("btnLightOff"); });
+document.querySelectorAll("#powerSeg .segbtn").forEach(b=>{
+  b.onclick=()=>doCmd(async()=>{
+    const v=parseInt(b.dataset.v);
+    await writeEncrypted(C.POWER_LEVEL,[v],"Assistance "+v);
+    document.querySelectorAll("#powerSeg .segbtn").forEach(x=>x.classList.toggle("active",x===b));
+  });
+});
+document.querySelectorAll(".soundbtn").forEach(b=>{
+  b.onclick=()=>doCmd(async()=>{
+    const v=parseInt(b.dataset.v), name=b.textContent.trim();
+    await writeEncrypted(C.BELL_SOUND,[v],"Sonnette "+name);
+    await sleep(200);
+    const r=await readChar(C.BELL_SOUND);
+    log("BELL_SOUND relu: "+((r.dec||r.raw)[0]),"rx");
+    document.querySelectorAll(".soundbtn").forEach(x=>x.classList.toggle("active",x===b));
+  });
+});
 async function readBackupCode(){
   const {raw,dec}=await readChar(C.BACKUP_CODE);
   log("BACKUP_CODE: brut="+hex(raw)+" déchiffré="+(dec?hex(dec):"—"),"rx");
@@ -1509,6 +1620,14 @@ $("btnMonitor").onclick=()=>{
     pollErrors();
   }
 };
+document.querySelectorAll(".navbtn").forEach(b=>{
+  b.onclick=()=>{
+    const p=b.dataset.page;
+    document.querySelectorAll(".page").forEach(pg=>pg.hidden=(pg.id!=="page-"+p));
+    document.querySelectorAll(".navbtn").forEach(x=>x.classList.toggle("active",x===b));
+    try{ window.scrollTo(0,0); }catch(_){}
+  };
+});
 $("btnCopy").onclick=()=>{ const t=Array.from(document.querySelectorAll("#console .l")).map(l=>l.textContent).join("\n");
   navigator.clipboard.writeText(t).then(()=>log("Journal copié ✓","ok")).catch(()=>log("Copie refusée","warn")); };
 
@@ -1615,7 +1734,7 @@ $("btnBmsRead").onclick=bmsReadCells;
     $("btnConnect").disabled=true;
     log("Web Bluetooth non disponible dans ce contexte.","err");
   } else {
-    log("Funmoov v31 prêt. Allume ton vélo et clique « Connecter ».","ok");
+    log("Funmoov v37 prêt. Allume ton vélo et clique « Connecter ».","ok");
   }
   if(!navigator.serial){
     $("btnBmsConnect").disabled=true;
