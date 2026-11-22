@@ -874,6 +874,10 @@
   .navbtn:hover{color:var(--amber);border-color:var(--amberdim)}
   .navbtn.active{background:var(--amber);color:#1c1500;border-color:var(--amber)}
   .page[hidden]{display:none}
+  .legal{font-size:13px;color:var(--mut);line-height:1.6;margin-bottom:12px}
+  .legal:last-child{margin-bottom:0}
+  .legal b{color:var(--txt)}
+  .foot{text-align:center;font-size:11px;color:var(--dim);line-height:1.5;margin-top:18px;padding:0 10px}
   label{font-size:10px;color:var(--mut);font-weight:600;display:block;margin-bottom:7px;text-transform:uppercase;letter-spacing:.06em}
   .row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
   .field{flex:1;min-width:150px}
@@ -973,6 +977,7 @@
     <button class="navbtn" data-page="bms">BMS</button>
     <button class="navbtn" data-page="code">Code</button>
     <button class="navbtn" data-page="journal">Journal</button>
+    <button class="navbtn" data-page="about">À propos</button>
   </nav>
   <div class="page" id="page-controle">
   <!-- CONTROLE -->
@@ -1157,6 +1162,16 @@
     <div class="console" id="console"></div>
   </div>
   </div>
+  <div class="page" id="page-about" hidden>
+    <div class="card">
+      <h2><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16.5"/><circle cx="12" cy="7.8" r="0.7" fill="currentColor" stroke="none"/></svg></span> À propos</h2>
+      <p class="legal"><b>Funmoov est un outil indépendant, non officiel.</b> Il n'est ni affilié à, ni approuvé par, ni associé à VanMoof. « VanMoof » est une marque de son propriétaire, utilisée ici à titre uniquement descriptif pour indiquer la compatibilité.</p>
+      <p class="legal">Funmoov fonctionne avec des vélos auxquels l'utilisateur a légitimement accès, au moyen des clés de son propre vélo.</p>
+      <p class="legal">L'outil est fourni « en l'état », sans aucune garantie. L'utilisateur est seul responsable de l'usage qu'il en fait, y compris des réglages affectant la conformité légale du vélo (vitesse, puissance) ou son bon fonctionnement. Dépasser la limite de vitesse légale locale peut rendre le vélo non conforme sur la voie publique.</p>
+      <p class="legal">Funmoov décline toute responsabilité en cas de dommage, perte de données ou dysfonctionnement résultant de son utilisation.</p>
+    </div>
+  </div>
+  <div class="foot">Funmoov — outil indépendant, non affilié à VanMoof. Fourni sans garantie ; usage aux risques de l'utilisateur.</div>
 </div>
 
 <script>
@@ -1734,7 +1749,7 @@ $("btnBmsRead").onclick=bmsReadCells;
     $("btnConnect").disabled=true;
     log("Web Bluetooth non disponible dans ce contexte.","err");
   } else {
-    log("Funmoov v37 prêt. Allume ton vélo et clique « Connecter ».","ok");
+    log("Funmoov v38 prêt. Allume ton vélo et clique « Connecter ».","ok");
   }
   if(!navigator.serial){
     $("btnBmsConnect").disabled=true;
