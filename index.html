@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Funmoov — Diagnostic VanMoof</title>
 <meta name="theme-color" content="#0a0a0c">
 <link rel="manifest" href="manifest.json">
@@ -829,6 +829,7 @@
     --radius:18px;
   }
   *{box-sizing:border-box;margin:0;padding:0}
+  html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
   body{font-family:'Inter',system-ui,sans-serif;background:
      radial-gradient(900px 500px at 85% -15%, rgba(237,182,75,.06) 0%, transparent 55%), var(--bg);
     color:var(--txt);min-height:100vh;line-height:1.5;-webkit-font-smoothing:antialiased}
@@ -1011,7 +1012,7 @@
       <button class="soundbtn" data-v="10" disabled><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M3 9.5 h3.5 L12 5.5 v13 L6.5 14.5 H3 Z"/><path d="M15.5 9 a4.5 4.5 0 0 1 0 6"/><path d="M18 6.5 a8 8 0 0 1 0 11"/></svg> VanMoof</button>
       <button class="soundbtn" data-v="24" disabled><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M18 9 a6 6 0 0 0 -12 0 c0 6.5 -2.5 8 -2.5 8 h17 s-2.5 -1.5 -2.5 -8"/><path d="M10 20 a2.2 2.2 0 0 0 4 0"/></svg> Ding dong</button>
     </div>
-    <div class="hint">Son de la sonnette du guidon. Valeurs à confirmer (Ping=22, Party=23, VanMoof=10, Ding dong=24) — le son choisi reste en ambre.</div>
+    <div class="hint">Son de la sonnette du guidon, comme l’app VanMoof. Le son choisi reste en ambre.</div>
     <div class="divider"></div>
     <label>Limite de vitesse</label>
     <div class="btns seg-row">
@@ -1087,7 +1088,6 @@
     <div class="grid">
       <div class="tile"><div class="k">Batterie module</div><div class="v na" id="tModBat">—</div><div class="bar"><i id="barMod"></i></div></div>
       <div class="tile"><div class="k">Batterie moteur</div><div class="v na" id="tMotBat">—</div><div class="bar"><i id="barMot"></i></div></div>
-      <div class="tile"><div class="k">Vitesse</div><div class="v na" id="tSpeed">—</div></div>
       <div class="tile"><div class="k">Distance</div><div class="v na" id="tDist">—</div></div>
       <div class="tile"><div class="k">Verrou</div><div class="v na" id="tLock">—</div></div>
       <div class="tile"><div class="k">Codes erreur</div><div class="v na err-tile" id="tErrors">—</div></div>
@@ -1320,7 +1320,6 @@ async function readDiag(){
   try{
     await tile("MODULE_BATTERY_LEVEL","tModBat","barMod","%","level");
     await tile("MOTOR_BATTERY_LEVEL","tMotBat","barMot","%","level");
-    await tile("SPEED","tSpeed",null," km/h","byte");
     await readDistance();
     await readLock();
     await readInfos();
@@ -1749,7 +1748,7 @@ $("btnBmsRead").onclick=bmsReadCells;
     $("btnConnect").disabled=true;
     log("Web Bluetooth non disponible dans ce contexte.","err");
   } else {
-    log("Funmoov v38 prêt. Allume ton vélo et clique « Connecter ».","ok");
+    log("Funmoov v41 prêt. Allume ton vélo et clique « Connecter ».","ok");
   }
   if(!navigator.serial){
     $("btnBmsConnect").disabled=true;
