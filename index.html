@@ -895,6 +895,16 @@
   .dropzone.dragover::after{content:"Déposer le fichier…";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(237,182,75,.12);border-radius:10px;color:var(--amber);font-weight:700;font-size:13px;pointer-events:none}
   .filebtn{background:var(--card2);border:1px solid var(--line);color:var(--txt);padding:11px 17px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:7px}
   .filebtn:hover{border-color:var(--amber);background:#211d12}
+  .gbadge{font-family:'Silkscreen',ui-monospace,monospace;font-size:12px;color:var(--amber);background:var(--bg);border:1px solid var(--amberdim);padding:2px 9px;border-radius:20px;margin-left:8px}
+  .garagelist{display:flex;flex-direction:column;gap:11px;margin-top:6px}
+  .gcard{background:var(--tile);border:1px solid var(--line);border-radius:14px;padding:15px 16px;transition:.15s}
+  .gcard:hover{border-color:var(--amberdim)}
+  .gname{font-family:'Silkscreen',ui-monospace,monospace;font-size:15px;color:var(--amber);margin-bottom:10px;word-break:break-word}
+  .gkv{display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-bottom:1px solid var(--line);font-size:13px}
+  .gkv:last-of-type{border-bottom:none}
+  .gkv span{color:var(--dim)}
+  .gkv b{font-weight:600;text-align:right;word-break:break-word}
+  .gcard .gconnect{margin-top:13px;width:100%;justify-content:center}
   button{background:var(--card2);border:1px solid var(--line);color:var(--txt);padding:11px 17px;
     border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:.15s;
     display:inline-flex;align-items:center;gap:7px}
@@ -981,6 +991,7 @@
   <nav class="nav">
     <button class="navbtn active" data-page="controle">Contrôle</button>
     <button class="navbtn" data-page="velos">Mes vélos</button>
+    <button class="navbtn" data-page="garage">Garage</button>
     <button class="navbtn" data-page="diag">Diagnostic</button>
     <button class="navbtn" data-page="bms">BMS</button>
     <button class="navbtn" data-page="code">Code</button>
@@ -1098,6 +1109,14 @@
   </div>
 
   </div>
+  <div class="page" id="page-garage" hidden>
+  <div class="card">
+    <h2><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 L12 4 l9 6.5"/><path d="M5 9.5 V20 h14 V9.5"/><rect x="9" y="13" width="6" height="7"/></svg></span> Garage <span id="garageCount" class="gbadge">0</span></h2>
+    <div class="hint">Tous tes vélos, y compris ceux partagés avec toi. Touche « Connecter » sur une carte pour le sélectionner et lancer la connexion.</div>
+    <div id="garageList" class="garagelist"></div>
+  </div>
+  </div>
+
   <div class="page" id="page-diag" hidden>
   <!-- DIAGNOSTIC -->
   <div class="card">
@@ -1478,19 +1497,20 @@ $("btnSave").onclick=()=>{
   if(!name){ log("Donne d'abord un nom au vélo.","warn"); return; }
   if(!/^[0-9a-f]{32}$/.test(key)){ log("Clé invalide : 32 caractères hex attendus.","warn"); return; }
   const a=getBikes(); const i=a.findIndex(x=>x.name===name);
-  if(i>=0) a[i]={name,key,ukid}; else a.push({name,key,ukid});
-  saveBikes(a); refreshBikeSel(name); log("Vélo « "+name+" » enregistré ✓","ok");
+  if(i>=0) a[i]={...a[i],name,key,ukid}; else a.push({name,key,ukid});
+  saveBikes(a); refreshBikeSel(name); renderGarage(); log("Vélo « "+name+" » enregistré ✓","ok");
 };
 $("btnDelete").onclick=()=>{
   const name=$("bikeName").value.trim();
   const a=getBikes().filter(x=>x.name!==name);
-  saveBikes(a); refreshBikeSel(""); $("bikeName").value=""; $("key").value=""; $("ukid").value=1;
+  saveBikes(a); refreshBikeSel(""); renderGarage(); $("bikeName").value=""; $("key").value=""; $("ukid").value=1;
   log("Vélo supprimé.","warn");
 };
 // ---- Import des clés (format JSON de l'API VanMoof OU texte du script) ----
 function parseKeysText(txt){
   txt = txt || "";
   const dedupe = arr => { const seen=new Set(), out=[]; arr.forEach(b=>{ if(/^[0-9a-f]{32}$/.test(b.key) && !seen.has(b.key)){ seen.add(b.key); out.push(b); } }); return out; };
+  const mk = () => ({name:"", key:null, ukid:1, model:"", frame:"", mac:"", backup:""});
 
   // 1) JSON complet (structure de l'API VanMoof)
   try{
@@ -1499,20 +1519,45 @@ function parseKeysText(txt){
     if(arr && arr.length){
       const out=[];
       arr.forEach(b=>{ const k=b.key||{}; const key=String(k.encryptionKey||"").toLowerCase();
-        out.push({name:String(b.name||b.id||"").trim(), key, ukid:(k.userKeyId!=null?parseInt(k.userKeyId):1)}); });
+        out.push({name:String(b.name||b.id||"").trim(), key, ukid:(k.userKeyId!=null?parseInt(k.userKeyId):1),
+          model:String(b.modelName||b.bikeModel||"").trim(), frame:String(b.frameNumber||"").trim(),
+          mac:String(b.macAddress||"").trim(), backup:String(k.backupCode||"").trim()}); });
       const d=dedupe(out); if(d.length) return d;
     }
   }catch(_){}
 
-  // 2) Repli : scan de jetons (texte du script OU JSON tronqué/partiel)
-  const re=/"name"\s*:\s*"([^"]+)"|(?:^|\n)[ \t]*nom[ \t]*[:=][ \t]*([^\n]+?)[ \t]*(?=\n|$)|"encryptionKey"\s*:\s*"?([0-9a-fA-F]{32})"?|\b([0-9a-fA-F]{32})\b|"userKeyId"\s*:\s*(\d+)|user[_ ]?key[_ ]?id[ \t]*[:=][ \t]*(\d+)/gi;
+  // 2) Repli : scanner générique (texte du script OU JSON tronqué/partiel)
+  const re=new RegExp([
+    '"name"\\s*:\\s*"([^"]+)"',                                              // 1 name json
+    '(?:^|\\n)[ \\t]*nom[ \\t]*[:=][ \\t]*([^\\n]+?)[ \\t]*(?=\\n|$)',        // 2 name txt
+    '"modelName"\\s*:\\s*"([^"]+)"',                                         // 3 model json
+    '(?:^|\\n)[ \\t]*mod[e\\u00e8]le[ \\t]*[:=][ \\t]*([^\\n]+?)[ \\t]*(?=\\n|$)', // 4 model txt
+    '"frameNumber"\\s*:\\s*"([^"]+)"',                                       // 5 frame json
+    '(?:^|\\n)[^:\\n]*cadre[^:\\n]*[:=][ \\t]*([^\\n]+?)[ \\t]*(?=\\n|$)',    // 6 frame txt
+    '"macAddress"\\s*:\\s*"([^"]+)"',                                        // 7 mac json
+    '([0-9A-Fa-f]{2}(?::[0-9A-Fa-f]{2}){5})',                               // 8 mac bare
+    '"encryptionKey"\\s*:\\s*"?([0-9a-fA-F]{32})"?',                         // 9 key json
+    '\\b([0-9a-fA-F]{32})\\b',                                               // 10 key bare
+    '"userKeyId"\\s*:\\s*(\\d+)',                                            // 11 ukid json
+    'user[_ ]?key[_ ]?id[ \\t]*[:=][ \\t]*(\\d+)',                          // 12 ukid txt
+    '"backupCode"\\s*:\\s*"([^"]+)"',                                        // 13 backup json
+    '(?:^|\\n)[^:\\n]*secours[^:\\n]*[:=][ \\t]*([^\\n]+?)[ \\t]*(?=\\n|$)', // 14 backup txt
+    '(?:^|\\n)[^:\\n]*id[ \\t]*de[ \\t]*cl[e\\u00e9][^:\\n]*[:=][ \\t]*(\\d+)' // 15 ukid txt (FR)
+  ].join('|'),'gi');
   const bikes=[]; let cur=null, m;
   const flush=()=>{ if(cur && cur.key) bikes.push(cur); };
+  const ensure=()=>{ if(!cur) cur=mk(); return cur; };
   while((m=re.exec(txt))){
-    const name=(m[1]!=null?m[1]:m[2]), key=(m[3]||m[4]), ukid=(m[5]!=null?m[5]:m[6]);
-    if(name!=null){ flush(); cur={name:name.trim(), key:null, ukid:1}; }
-    else if(key){ if(!cur) cur={name:"", key:null, ukid:1}; cur.key=key.toLowerCase(); }
-    else if(ukid!=null){ if(!cur) cur={name:"", key:null, ukid:1}; cur.ukid=parseInt(ukid); }
+    const name=(m[1]!=null?m[1]:m[2]), model=(m[3]!=null?m[3]:m[4]), frame=(m[5]!=null?m[5]:m[6]);
+    const mac=(m[7]!=null?m[7]:m[8]), key=(m[9]||m[10]), backup=(m[13]!=null?m[13]:m[14]);
+    const ukid=(m[11]!=null?m[11]:(m[12]!=null?m[12]:m[15]));
+    if(name!=null){ flush(); cur=mk(); cur.name=name.trim(); }
+    else if(model!=null){ ensure().model=model.trim(); }
+    else if(frame!=null){ ensure().frame=frame.trim(); }
+    else if(mac!=null){ ensure().mac=mac.trim(); }
+    else if(key){ ensure().key=key.toLowerCase(); }
+    else if(ukid!=null){ ensure().ukid=parseInt(ukid); }
+    else if(backup!=null){ ensure().backup=backup.trim(); }
   }
   flush();
   bikes.forEach((b,i)=>{ if(!b.name) b.name="Vélo "+(i+1); });
@@ -1524,10 +1569,11 @@ function doImport(txt){
   const a=getBikes(); let added=0, updated=0;
   found.forEach(f=>{
     const i=a.findIndex(x=>x.key===f.key);
-    if(i>=0){ a[i].name=f.name; a[i].ukid=f.ukid; updated++; }
+    if(i>=0){ a[i].name=f.name; a[i].ukid=f.ukid;
+      ["model","frame","mac","backup"].forEach(p=>{ if(f[p]) a[i][p]=f[p]; }); updated++; }
     else { a.push(f); added++; }
   });
-  saveBikes(a); refreshBikeSel();
+  saveBikes(a); refreshBikeSel(); renderGarage();
   log("Import ✓ : "+added+" ajouté(s), "+updated+" mis à jour ("+found.length+" vélo(s) lu(s)).","ok");
 }
 function importFromFile(f){ if(!f) return; const r=new FileReader(); r.onload=()=>{ $("importText").value=r.result; doImport(r.result); }; r.readAsText(f); }
@@ -1704,14 +1750,41 @@ $("btnMonitor").onclick=()=>{
     pollErrors();
   }
 };
-document.querySelectorAll(".navbtn").forEach(b=>{
-  b.onclick=()=>{
-    const p=b.dataset.page;
-    document.querySelectorAll(".page").forEach(pg=>pg.hidden=(pg.id!=="page-"+p));
-    document.querySelectorAll(".navbtn").forEach(x=>x.classList.toggle("active",x===b));
-    try{ window.scrollTo(0,0); }catch(_){}
-  };
-});
+function goToPage(p){
+  document.querySelectorAll(".page").forEach(pg=>pg.hidden=(pg.id!=="page-"+p));
+  document.querySelectorAll(".navbtn").forEach(x=>x.classList.toggle("active",x.dataset.page===p));
+  try{ window.scrollTo(0,0); }catch(_){}
+  if(p==="garage") renderGarage();
+}
+document.querySelectorAll(".navbtn").forEach(b=>{ b.onclick=()=>goToPage(b.dataset.page); });
+
+// ---- Garage : liste défilante de tous les vélos ----
+function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function renderGarage(){
+  const wrap=$("garageList"); if(!wrap) return;
+  const a=getBikes(); const cnt=$("garageCount"); if(cnt) cnt.textContent=a.length;
+  if(!a.length){ wrap.innerHTML='<div class="hint">Aucun vélo pour l’instant. Importe tes clés dans « Mes vélos ».</div>'; return; }
+  wrap.innerHTML="";
+  a.forEach(b=>{
+    const keyTxt = b.key ? esc(b.key.slice(0,6))+"… <span style='color:var(--dim)'>(id "+esc(b.ukid)+")</span>" : "—";
+    const c=document.createElement("div"); c.className="gcard";
+    c.innerHTML =
+      '<div class="gname">'+esc(b.name)+'</div>'+
+      '<div class="gkv"><span>Modèle</span><b>'+esc(b.model||"—")+'</b></div>'+
+      '<div class="gkv"><span>N° de cadre</span><b>'+esc(b.frame||"—")+'</b></div>'+
+      '<div class="gkv"><span>Adresse MAC</span><b class="mono">'+esc(b.mac||"—")+'</b></div>'+
+      '<div class="gkv"><span>Clé</span><b class="mono">'+keyTxt+'</b></div>'+
+      '<button class="primary gconnect"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17 H7 a5 5 0 0 1 0 -10 h2"/><path d="M15 7 h2 a5 5 0 0 1 0 10 h-2"/><line x1="8" y1="12" x2="16" y2="12"/></svg> Sélectionner &amp; connecter</button>';
+    c.querySelector(".gconnect").onclick=()=>selectAndConnect(b.name);
+    wrap.appendChild(c);
+  });
+}
+function selectAndConnect(name){
+  loadBike(name);               // charge nom + clé + userKeyId dans les champs
+  refreshBikeSel(name);         // reflète la sélection dans la liste déroulante
+  goToPage("velos");            // on bascule sur l'onglet connexion
+  connect();                    // ouvre le sélecteur Bluetooth (même geste utilisateur)
+}
 $("btnCopy").onclick=()=>{ const t=Array.from(document.querySelectorAll("#console .l")).map(l=>l.textContent).join("\n");
   navigator.clipboard.writeText(t).then(()=>log("Journal copié ✓","ok")).catch(()=>log("Copie refusée","warn")); };
 
@@ -1808,7 +1881,7 @@ $("btnBmsRead").onclick=bmsReadCells;
 // ---------- Boot ----------
 (function boot(){
   // Garage : démarre vide — chacun gère ses propres vélos sur son appareil
-  refreshBikeSel();
+  refreshBikeSel(); renderGarage();
   const first=getBikes()[0];
   if(first){ $("bikeSel").value=first.name; loadBike(first.name); }
   updateHeroName();
@@ -1818,7 +1891,7 @@ $("btnBmsRead").onclick=bmsReadCells;
     $("btnConnect").disabled=true;
     log("Web Bluetooth non disponible dans ce contexte.","err");
   } else {
-    log("Funmoov v45 prêt. Allume ton vélo et clique « Connecter ».","ok");
+    log("Funmoov v46 prêt. Allume ton vélo et clique « Connecter ».","ok");
   }
   if(!navigator.serial){
     $("btnBmsConnect").disabled=true;
