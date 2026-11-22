@@ -1007,10 +1007,9 @@
     <div class="divider"></div>
     <label>Sons (sonnette)</label>
     <div class="btns seg-row">
-      <button class="soundbtn" data-v="22" disabled><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M12 4 l1.3 4.2 4.2 1.3 -4.2 1.3 -1.3 4.2 -1.3 -4.2 -4.2 -1.3 4.2 -1.3 Z"/><path d="M18.5 14 l.6 1.9 1.9 .6 -1.9 .6 -.6 1.9 -.6 -1.9 -1.9 -.6 1.9 -.6 Z"/></svg> Ping</button>
+      <button class="soundbtn" data-v="22" disabled><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M18 9 a6 6 0 0 0 -12 0 c0 6.5 -2.5 8 -2.5 8 h17 s-2.5 -1.5 -2.5 -8"/><path d="M10 20 a2.2 2.2 0 0 0 4 0"/></svg> Ding dong</button>
       <button class="soundbtn" data-v="23" disabled><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M3 21 L10 8.5 L15.5 14 Z"/><line x1="13" y1="3.5" x2="13" y2="5.5"/><line x1="16.8" y1="5" x2="18.3" y2="3.5"/><line x1="18" y1="9" x2="20" y2="9"/><circle cx="15.5" cy="11.5" r=".7" fill="currentColor" stroke="none"/></svg> Party</button>
       <button class="soundbtn" data-v="10" disabled><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M3 9.5 h3.5 L12 5.5 v13 L6.5 14.5 H3 Z"/><path d="M15.5 9 a4.5 4.5 0 0 1 0 6"/><path d="M18 6.5 a8 8 0 0 1 0 11"/></svg> VanMoof</button>
-      <button class="soundbtn" data-v="24" disabled><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M18 9 a6 6 0 0 0 -12 0 c0 6.5 -2.5 8 -2.5 8 h17 s-2.5 -1.5 -2.5 -8"/><path d="M10 20 a2.2 2.2 0 0 0 4 0"/></svg> Ding dong</button>
     </div>
     <div class="hint">Son de la sonnette du guidon, comme l’app VanMoof. Le son choisi reste en ambre.</div>
     <div class="divider"></div>
@@ -1747,7 +1746,7 @@ $("btnBmsRead").onclick=bmsReadCells;
     $("btnConnect").disabled=true;
     log("Web Bluetooth non disponible dans ce contexte.","err");
   } else {
-    log("Funmoov v42 prêt. Allume ton vélo et clique « Connecter ».","ok");
+    log("Funmoov v43 prêt. Allume ton vélo et clique « Connecter ».","ok");
   }
   if(!navigator.serial){
     $("btnBmsConnect").disabled=true;
