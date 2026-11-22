@@ -1487,31 +1487,48 @@ $("btnDelete").onclick=()=>{
   saveBikes(a); refreshBikeSel(""); $("bikeName").value=""; $("key").value=""; $("ukid").value=1;
   log("Vélo supprimé.","warn");
 };
-// ---- Import des clés depuis le script VanMoof ----
+// ---- Import des clés (format JSON de l'API VanMoof OU texte du script) ----
 function parseKeysText(txt){
-  const bikes=[], seen=new Set(); let curName="";
-  (txt||"").split(/\r?\n/).forEach(ln=>{
-    const nm=ln.match(/(?:nom|name)\s*[:=]\s*"?([^"\n]+?)"?\s*,?\s*$/i);
-    if(nm){ curName=nm[1].trim(); }
-    const km=ln.match(/\b([0-9a-fA-F]{32})\b/);
-    if(km){
-      const key=km[1].toLowerCase();
-      if(!seen.has(key)){ seen.add(key); bikes.push({name:curName||("Vélo "+(bikes.length+1)), key, ukid:1}); curName=""; }
+  txt = txt || "";
+  const dedupe = arr => { const seen=new Set(), out=[]; arr.forEach(b=>{ if(/^[0-9a-f]{32}$/.test(b.key) && !seen.has(b.key)){ seen.add(b.key); out.push(b); } }); return out; };
+
+  // 1) JSON complet (structure de l'API VanMoof)
+  try{
+    const j = JSON.parse(txt);
+    const arr = (j && j.data && j.data.bikeDetails) || (j && j.bikeDetails) || (Array.isArray(j) ? j : null);
+    if(arr && arr.length){
+      const out=[];
+      arr.forEach(b=>{ const k=b.key||{}; const key=String(k.encryptionKey||"").toLowerCase();
+        out.push({name:String(b.name||b.id||"").trim(), key, ukid:(k.userKeyId!=null?parseInt(k.userKeyId):1)}); });
+      const d=dedupe(out); if(d.length) return d;
     }
-  });
-  return bikes;
+  }catch(_){}
+
+  // 2) Repli : scan de jetons (texte du script OU JSON tronqué/partiel)
+  const re=/"name"\s*:\s*"([^"]+)"|(?:^|\n)[ \t]*nom[ \t]*[:=][ \t]*([^\n]+?)[ \t]*(?=\n|$)|"encryptionKey"\s*:\s*"?([0-9a-fA-F]{32})"?|\b([0-9a-fA-F]{32})\b|"userKeyId"\s*:\s*(\d+)|user[_ ]?key[_ ]?id[ \t]*[:=][ \t]*(\d+)/gi;
+  const bikes=[]; let cur=null, m;
+  const flush=()=>{ if(cur && cur.key) bikes.push(cur); };
+  while((m=re.exec(txt))){
+    const name=(m[1]!=null?m[1]:m[2]), key=(m[3]||m[4]), ukid=(m[5]!=null?m[5]:m[6]);
+    if(name!=null){ flush(); cur={name:name.trim(), key:null, ukid:1}; }
+    else if(key){ if(!cur) cur={name:"", key:null, ukid:1}; cur.key=key.toLowerCase(); }
+    else if(ukid!=null){ if(!cur) cur={name:"", key:null, ukid:1}; cur.ukid=parseInt(ukid); }
+  }
+  flush();
+  bikes.forEach((b,i)=>{ if(!b.name) b.name="Vélo "+(i+1); });
+  return dedupe(bikes);
 }
 function doImport(txt){
   const found=parseKeysText(txt);
-  if(!found.length){ log("Aucune clé (32 hex) trouvée. Colle bien le résultat du script.","warn"); return; }
+  if(!found.length){ log("Aucune clé (32 hex) trouvée. Colle le résultat du script ou le JSON VanMoof.","warn"); return; }
   const a=getBikes(); let added=0, updated=0;
   found.forEach(f=>{
     const i=a.findIndex(x=>x.key===f.key);
-    if(i>=0){ a[i].name=f.name; if(a[i].ukid==null)a[i].ukid=1; updated++; }
+    if(i>=0){ a[i].name=f.name; a[i].ukid=f.ukid; updated++; }
     else { a.push(f); added++; }
   });
   saveBikes(a); refreshBikeSel();
-  log("Import ✓ : "+added+" ajouté(s), "+updated+" mis à jour ("+found.length+" clé(s) lue(s)).","ok");
+  log("Import ✓ : "+added+" ajouté(s), "+updated+" mis à jour ("+found.length+" vélo(s) lu(s)).","ok");
 }
 function importFromFile(f){ if(!f) return; const r=new FileReader(); r.onload=()=>{ $("importText").value=r.result; doImport(r.result); }; r.readAsText(f); }
 $("btnImport").onclick=()=>doImport($("importText").value);
@@ -1801,7 +1818,7 @@ $("btnBmsRead").onclick=bmsReadCells;
     $("btnConnect").disabled=true;
     log("Web Bluetooth non disponible dans ce contexte.","err");
   } else {
-    log("Funmoov v44 prêt. Allume ton vélo et clique « Connecter ».","ok");
+    log("Funmoov v45 prêt. Allume ton vélo et clique « Connecter ».","ok");
   }
   if(!navigator.serial){
     $("btnBmsConnect").disabled=true;
