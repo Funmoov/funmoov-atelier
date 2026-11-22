@@ -985,6 +985,7 @@
     <label>Sonnette (son du klaxon)</label>
     <div class="row" style="align-items:center">
       <div class="field" style="flex:0 0 200px"><select id="bellTone">
+        <option value="1">Klaxon VanMoof</option>
         <option value="22">Classique (Bell)</option>
         <option value="23">Fête (Party)</option>
         <option value="24">Corne de brume (Boat)</option>
@@ -996,11 +997,11 @@
     <label>Tester un son</label>
     <div class="row" style="align-items:center">
       <div class="field" style="flex:0 0 170px"><select id="soundId">
-        <option value="10">Klaxon</option>
+        <option value="1">Klaxon VanMoof</option>
+        <option value="10">Klaxon (Horn 1)</option>
         <option value="11">Klaxon urgent</option>
         <option value="3">Bip positif</option>
         <option value="2">Bip négatif</option>
-        <option value="1">Ton</option>
         <option value="8">Appairage OK</option>
         <option value="25">Bruit</option>
       </select></div>
@@ -1014,7 +1015,7 @@
       <button id="btnLightOn" disabled><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><line x1="12" y1="1.5" x2="12" y2="3.5"/><line x1="12" y1="20.5" x2="12" y2="22.5"/><line x1="1.5" y1="12" x2="3.5" y2="12"/><line x1="20.5" y1="12" x2="22.5" y2="12"/><line x1="4.6" y1="4.6" x2="6" y2="6"/><line x1="18" y1="18" x2="19.4" y2="19.4"/><line x1="4.6" y1="19.4" x2="6" y2="18"/><line x1="18" y1="6" x2="19.4" y2="4.6"/></svg> On</button>
       <button id="btnLightOff" disabled><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1.5" x2="12" y2="3.5"/><line x1="12" y1="20.5" x2="12" y2="22.5"/><line x1="1.5" y1="12" x2="3.5" y2="12"/><line x1="20.5" y1="12" x2="22.5" y2="12"/><line x1="4.6" y1="4.6" x2="6" y2="6"/><line x1="18" y1="18" x2="19.4" y2="19.4"/><line x1="4.6" y1="19.4" x2="6" y2="18"/><line x1="18" y1="6" x2="19.4" y2="4.6"/><line x1="3.5" y1="3.5" x2="20.5" y2="20.5" stroke-width="2"/></svg> Off</button>
     </div>
-    <div class="hint">Mode d'éclairage, comme l'app VanMoof. Valeurs présumées (Auto=1, Allumées=2, Éteintes=0) — l'état relu confirme dans le journal, on ajuste si besoin.</div>
+    <div class="hint">Mode d'éclairage, comme l'app VanMoof (Auto=0, On=1, Off=2, confirmés sur vélo). Le bouton actif reste en ambre.</div>
     <div class="divider"></div>
     <label>Code de déverrouillage (boutons du guidon)</label>
     <div class="row" style="align-items:center">
@@ -1455,9 +1456,9 @@ async function setBell(){
 }
 $("btnBell").onclick=()=>doCmd(setBell);
 function lightActive(id){ ["btnLightAuto","btnLightOn","btnLightOff"].forEach(i=>$(i).classList.toggle("active",i===id)); }
-$("btnLightAuto").onclick=()=>doCmd(async()=>{ await setLight(1,"Auto"); lightActive("btnLightAuto"); });
-$("btnLightOn").onclick=()=>doCmd(async()=>{ await setLight(2,"On"); lightActive("btnLightOn"); });
-$("btnLightOff").onclick=()=>doCmd(async()=>{ await setLight(0,"Off"); lightActive("btnLightOff"); });
+$("btnLightAuto").onclick=()=>doCmd(async()=>{ await setLight(0,"Auto"); lightActive("btnLightAuto"); });
+$("btnLightOn").onclick=()=>doCmd(async()=>{ await setLight(1,"On"); lightActive("btnLightOn"); });
+$("btnLightOff").onclick=()=>doCmd(async()=>{ await setLight(2,"Off"); lightActive("btnLightOff"); });
 async function readBackupCode(){
   const {raw,dec}=await readChar(C.BACKUP_CODE);
   log("BACKUP_CODE: brut="+hex(raw)+" déchiffré="+(dec?hex(dec):"—"),"rx");
@@ -1614,7 +1615,7 @@ $("btnBmsRead").onclick=bmsReadCells;
     $("btnConnect").disabled=true;
     log("Web Bluetooth non disponible dans ce contexte.","err");
   } else {
-    log("Funmoov v29 prêt. Allume ton vélo et clique « Connecter ».","ok");
+    log("Funmoov v31 prêt. Allume ton vélo et clique « Connecter ».","ok");
   }
   if(!navigator.serial){
     $("btnBmsConnect").disabled=true;
