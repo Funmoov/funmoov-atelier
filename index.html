@@ -888,6 +888,13 @@
   input.mono{font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:.3px}
   .chk{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--mut);cursor:pointer;font-weight:500}
   .chk input{width:auto;accent-color:var(--amber)}
+  textarea{width:100%;background:var(--bg);border:1px solid var(--line);color:var(--txt);padding:11px 13px;border-radius:10px;font-size:12px;font-family:'JetBrains Mono',monospace;line-height:1.5;min-height:92px;resize:vertical;transition:.15s}
+  textarea:focus{outline:none;border-color:var(--amber);box-shadow:0 0 0 3px rgba(237,182,75,.14)}
+  .dropzone{position:relative;border-radius:10px;transition:.15s}
+  .dropzone.dragover{box-shadow:0 0 0 2px var(--amber)}
+  .dropzone.dragover::after{content:"Déposer le fichier…";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(237,182,75,.12);border-radius:10px;color:var(--amber);font-weight:700;font-size:13px;pointer-events:none}
+  .filebtn{background:var(--card2);border:1px solid var(--line);color:var(--txt);padding:11px 17px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:7px}
+  .filebtn:hover{border-color:var(--amber);background:#211d12}
   button{background:var(--card2);border:1px solid var(--line);color:var(--txt);padding:11px 17px;
     border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:.15s;
     display:inline-flex;align-items:center;gap:7px}
@@ -1073,6 +1080,20 @@
       <button class="primary" id="btnConnect">🔗 Connecter le vélo</button>
       <button id="btnAuth" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="11" width="15" height="9.5" rx="2"/><path d="M8 11 V7 a4 4 0 0 1 7.7 -1.5"/><circle cx="12" cy="15.5" r="1.3" fill="currentColor" stroke="none"/></svg> Authentifier</button>
       <button class="danger" id="btnDisconnect" disabled>Déconnecter</button>
+    </div>
+  </div>
+
+  <!-- IMPORT CLÉS -->
+  <div class="card">
+    <h2><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 v12"/><polyline points="7 10 12 15 17 10"/><path d="M5 20 h14"/></svg></span> Importer mes clés VanMoof</h2>
+    <div class="hint">Lance le script <b>recuperer-cles-vanmoof.py</b> sur ton ordinateur, puis colle ici le texte obtenu (ou dépose le fichier <b>mes-cles-vanmoof.txt</b>). Tous les vélos trouvés sont ajoutés d'un coup. Ton mot de passe VanMoof ne passe jamais par l'appli.</div>
+    <div id="dropZone" class="dropzone" style="margin-top:12px">
+      <textarea id="importText" placeholder="Colle ici le résultat du script, ou dépose le fichier mes-cles-vanmoof.txt…" spellcheck="false"></textarea>
+    </div>
+    <div class="btns" style="margin-top:12px;align-items:center">
+      <button class="primary" id="btnImport"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 v12"/><polyline points="7 10 12 15 17 10"/><path d="M5 20 h14"/></svg> Importer</button>
+      <label class="filebtn" for="importFile"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3 H6 a2 2 0 0 0 -2 2 v14 a2 2 0 0 0 2 2 h12 a2 2 0 0 0 2 -2 V9 Z"/><polyline points="14 3 14 9 20 9"/></svg> Choisir un fichier</label>
+      <input type="file" id="importFile" accept=".txt,text/plain" hidden>
     </div>
   </div>
 
@@ -1466,6 +1487,40 @@ $("btnDelete").onclick=()=>{
   saveBikes(a); refreshBikeSel(""); $("bikeName").value=""; $("key").value=""; $("ukid").value=1;
   log("Vélo supprimé.","warn");
 };
+// ---- Import des clés depuis le script VanMoof ----
+function parseKeysText(txt){
+  const bikes=[], seen=new Set(); let curName="";
+  (txt||"").split(/\r?\n/).forEach(ln=>{
+    const nm=ln.match(/(?:nom|name)\s*[:=]\s*"?([^"\n]+?)"?\s*,?\s*$/i);
+    if(nm){ curName=nm[1].trim(); }
+    const km=ln.match(/\b([0-9a-fA-F]{32})\b/);
+    if(km){
+      const key=km[1].toLowerCase();
+      if(!seen.has(key)){ seen.add(key); bikes.push({name:curName||("Vélo "+(bikes.length+1)), key, ukid:1}); curName=""; }
+    }
+  });
+  return bikes;
+}
+function doImport(txt){
+  const found=parseKeysText(txt);
+  if(!found.length){ log("Aucune clé (32 hex) trouvée. Colle bien le résultat du script.","warn"); return; }
+  const a=getBikes(); let added=0, updated=0;
+  found.forEach(f=>{
+    const i=a.findIndex(x=>x.key===f.key);
+    if(i>=0){ a[i].name=f.name; if(a[i].ukid==null)a[i].ukid=1; updated++; }
+    else { a.push(f); added++; }
+  });
+  saveBikes(a); refreshBikeSel();
+  log("Import ✓ : "+added+" ajouté(s), "+updated+" mis à jour ("+found.length+" clé(s) lue(s)).","ok");
+}
+function importFromFile(f){ if(!f) return; const r=new FileReader(); r.onload=()=>{ $("importText").value=r.result; doImport(r.result); }; r.readAsText(f); }
+$("btnImport").onclick=()=>doImport($("importText").value);
+$("importFile").onchange=e=>importFromFile(e.target.files[0]);
+(function(){ const dz=$("dropZone"); if(!dz) return;
+  ["dragover","dragenter"].forEach(ev=>dz.addEventListener(ev,e=>{ e.preventDefault(); dz.classList.add("dragover"); }));
+  ["dragleave","dragend"].forEach(ev=>dz.addEventListener(ev,e=>{ e.preventDefault(); dz.classList.remove("dragover"); }));
+  dz.addEventListener("drop",e=>{ e.preventDefault(); dz.classList.remove("dragover"); if(e.dataTransfer.files[0]) importFromFile(e.dataTransfer.files[0]); });
+})();
 $("btnConnect").onclick=connect;
 $("btnDisconnect").onclick=disconnect;
 $("btnAuth").onclick=()=>doCmd(authenticate);
@@ -1746,7 +1801,7 @@ $("btnBmsRead").onclick=bmsReadCells;
     $("btnConnect").disabled=true;
     log("Web Bluetooth non disponible dans ce contexte.","err");
   } else {
-    log("Funmoov v43 prêt. Allume ton vélo et clique « Connecter ».","ok");
+    log("Funmoov v44 prêt. Allume ton vélo et clique « Connecter ».","ok");
   }
   if(!navigator.serial){
     $("btnBmsConnect").disabled=true;
