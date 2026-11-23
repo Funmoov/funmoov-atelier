@@ -905,6 +905,11 @@
   .gkv span{color:var(--dim)}
   .gkv b{font-weight:600;text-align:right;word-break:break-word}
   .gcard .gconnect{margin-top:13px;width:100%;justify-content:center}
+  .geardisp{font-family:'Silkscreen',ui-monospace,monospace;font-size:50px;line-height:1;color:var(--amber);min-width:58px;text-align:center}
+  .gearpips{display:flex;gap:8px}
+  .gearpips .pip{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;color:var(--dim);background:var(--tile);transition:.12s}
+  .gearpips .pip.on{background:var(--amber);color:#1a1205;border-color:var(--amber);box-shadow:0 0 14px rgba(237,182,75,.35)}
+  button.rec-on{background:var(--amber)!important;color:#1a1205!important;border-color:var(--amber)!important}
   button{background:var(--card2);border:1px solid var(--line);color:var(--txt);padding:11px 17px;
     border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:.15s;
     display:inline-flex;align-items:center;gap:7px}
@@ -948,6 +953,8 @@
   .divider{height:1px;background:var(--line);margin:15px 0}
   .hero{display:flex;align-items:center;gap:16px;background:linear-gradient(180deg,#16160f,var(--card));
     border:1px solid var(--amberdim);border-radius:var(--radius);padding:17px 20px;margin-bottom:13px}
+  .gearrow{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:6px}
+  .gearrow .acts{margin-left:auto;display:flex;gap:9px;flex-wrap:wrap}
   .hero-label{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.09em;font-weight:600}
   .hero-name{font-family:'Silkscreen',ui-monospace,monospace;font-size:19px;color:var(--txt);margin-top:7px;word-break:break-word}
   .hero-bat{margin-left:auto;display:flex;align-items:center;gap:7px;font-family:'Silkscreen',ui-monospace,monospace;font-size:15px;color:var(--amber)}
@@ -1015,6 +1022,22 @@
       <button class="segbtn" data-v="3" disabled>3</button>
       <button class="segbtn" data-v="4" disabled>4</button>
     </div>
+    <div class="divider"></div>
+    <label>Vitesse engagée (e-shifter)</label>
+    <div class="gearrow">
+      <div class="geardisp" id="gearNum">—</div>
+      <div class="gearpips" id="gearPips">
+        <span class="pip" data-g="1">1</span>
+        <span class="pip" data-g="2">2</span>
+        <span class="pip" data-g="3">3</span>
+        <span class="pip" data-g="4">4</span>
+      </div>
+      <div class="acts">
+        <button id="btnGearRead" disabled><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11.5 a8 8 0 1 0 -2.2 5.4"/><polyline points="20 4.5 20 11.5 13.5 11.5"/></svg> Lire</button>
+        <button id="btnGearLive" disabled><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.5" fill="currentColor" stroke="none"/></svg> Suivi live</button>
+      </div>
+    </div>
+    <div class="hint">Rapport automatique engagé (1 à 4), lu sur la caractéristique <b>5536</b>. « Suivi live » : tourne la roue ou roule pour voir les rapports passer en temps réel.</div>
     <div class="divider"></div>
     <label>Lumières</label>
     <div class="btns seg-row">
@@ -1137,6 +1160,7 @@
     <div class="hint">« Scan complet » lit les caractéristiques connues. « Découverte complète » énumère <b>toutes</b> les caractéristiques du vélo (même non mappées) — c'est l'outil pour trouver des fonctions cachées comme le mode de vitesse.</div>
   </div>
 
+
   <!-- INFOS -->
   <div class="card">
     <h2><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16.5"/><circle cx="12" cy="7.8" r="0.7" fill="currentColor" stroke="none"/></svg></span> Infos & firmwares</h2>
@@ -1221,7 +1245,7 @@ const ERR_CODES={ 44:"E-shifter (absent ou défaut)" };
 const C = {
   CHALLENGE:["security","6acc5501"], KEY_INDEX:["security","6acc5502"], BACKUP_CODE:["security","6acc5503"], BIKE_MESSAGE:["security","6acc5505"],
   LOCK_STATE:["defense","6acc5521"], UNLOCK_REQUEST:["defense","6acc5522"], ALARM_STATE:["defense","6acc5523"],
-  DISTANCE:["movement","6acc5531"], SPEED:["movement","6acc5532"], POWER_LEVEL:["movement","6acc5534"], SPEED_LIMIT:["movement","6acc5535"],
+  DISTANCE:["movement","6acc5531"], SPEED:["movement","6acc5532"], POWER_LEVEL:["movement","6acc5534"], SPEED_LIMIT:["movement","6acc5535"], GEAR:["movement","6acc5536"],
   MOTOR_BATTERY_LEVEL:["bikeinfo","6acc5541"], MOTOR_BATTERY_STATE:["bikeinfo","6acc5542"],
   MODULE_BATTERY_LEVEL:["bikeinfo","6acc5543"], MODULE_BATTERY_STATE:["bikeinfo","6acc5544"],
   BIKE_FW:["bikeinfo","6acc554a"], BLE_FW:["bikeinfo","6acc554b"], CTRL_FW:["bikeinfo","6acc554c"], FRAME_NUMBER:["bikeinfo","6acc5552"],
@@ -1243,7 +1267,8 @@ function log(msg,cls="info"){
 const hex = bytes => Array.from(bytes).map(b=>b.toString(16).padStart(2,"0")).join("");
 function setStatus(txt,state){ $("statusTxt").textContent=txt; const d=$("dot"); d.className="dot"+(state?" "+state:""); }
 function setCtrl(on){
-  ["btnRead","btnFull","btnDiscover","btnRecord","btnUnlock","btnLock","btnSound","btnSoundNext","btnSetBell","btnReadCode","btnWriteCode","btnMonitor","btnHeroUnlock","btnLightAuto","btnLightOn","btnLightOff"].forEach(i=>$(i).disabled=!on);
+  ["btnRead","btnFull","btnDiscover","btnRecord","btnUnlock","btnLock","btnSound","btnSoundNext","btnSetBell","btnReadCode","btnWriteCode","btnMonitor","btnHeroUnlock","btnLightAuto","btnLightOn","btnLightOff","btnGearRead","btnGearLive"].forEach(i=>$(i).disabled=!on);
+  if(!on){ stopGearLive(); showGear(null); }
   document.querySelectorAll(".segbtn,.soundbtn,.regionbtn").forEach(b=>b.disabled=!on);
   if(!on && errMonitor){ clearInterval(errMonitor); errMonitor=null; $("btnMonitor").textContent="Surveiller les erreurs"; }
   if(!on && recorder){ clearInterval(recorder); recorder=null; $("btnRecord").classList.remove("active"); }
@@ -1448,7 +1473,7 @@ async function doUnlock(){
   await sleep(400); await readLock();
 }
 async function subscribeNotifs(){
-  for(const [name,def] of [["UNLOCK_REQUEST",C.UNLOCK_REQUEST],["BIKE_MESSAGE",C.BIKE_MESSAGE]]){
+  for(const [name,def] of [["UNLOCK_REQUEST",C.UNLOCK_REQUEST],["BIKE_MESSAGE",C.BIKE_MESSAGE],["GEAR",C.GEAR]]){
     try{
       const ch=await getChar(def);
       if(!ch.properties.notify && !ch.properties.indicate){ continue; }
@@ -1456,11 +1481,36 @@ async function subscribeNotifs(){
       ch.addEventListener("characteristicvaluechanged",e=>{
         const raw=new Uint8Array(e.target.value.buffer.slice(0));
         let dec=null; try{dec=ecbDec(pad16(raw));}catch(_){}
+        if(name==="GEAR"){ if(dec) showGear(dec[0]); return; }
         log("🔔 "+name+" notif: brut="+hex(raw)+" déchiffré="+(dec?hex(dec):"—"),"rx");
       });
       log("Abonné aux notifications "+name,"info");
     }catch(e){ log("Notif "+name+": "+e.message,"warn"); }
   }
+}
+// ---------- Vitesse engagée (e-shifter, car. 5536) ----------
+let gearTimer=null;
+function showGear(g){
+  const el=$("gearNum"); if(!el) return;
+  const valid=(g>=1 && g<=4);
+  el.textContent = (g==null?"—":g);
+  document.querySelectorAll("#gearPips .pip").forEach(p=>p.classList.toggle("on", valid && +p.dataset.g===g));
+}
+async function readGear(){
+  try{ const {dec}=await readChar(C.GEAR); const g=dec?dec[0]:null; showGear(g); log("Vitesse engagée: "+(g==null?"—":g),"rx"); }
+  catch(e){ log("Lecture vitesse: "+e.message,"warn"); }
+}
+function stopGearLive(){ if(gearTimer){ clearInterval(gearTimer); gearTimer=null; } const b=$("btnGearLive"); if(b) b.classList.remove("rec-on"); }
+function toggleGearLive(){
+  if(gearTimer){ stopGearLive(); log("Suivi vitesse arrêté.","info"); return; }
+  if(!server||!server.connected){ log("Connecte-toi d'abord.","warn"); return; }
+  $("btnGearLive").classList.add("rec-on");
+  log("Suivi vitesse en direct — roule ou tourne la roue.","ok");
+  gearTimer=setInterval(async()=>{
+    if(busy) return;
+    try{ const {dec}=await readChar(C.GEAR); if(dec) showGear(dec[0]); }
+    catch(e){ stopGearLive(); log("Suivi vitesse interrompu: "+e.message,"warn"); }
+  },1000);
 }
 async function doLock(){
   await writeEncrypted(C.LOCK_STATE,[0x01],"Verrouiller (LOCK_STATE=1)");
@@ -1589,6 +1639,8 @@ $("btnDisconnect").onclick=disconnect;
 $("btnAuth").onclick=()=>doCmd(authenticate);
 $("btnRead").onclick=()=>doCmd(readDiag);
 $("btnFull").onclick=()=>doCmd(fullScan);
+$("btnGearRead").onclick=()=>doCmd(readGear);
+$("btnGearLive").onclick=()=>toggleGearLive();
 async function discoverAll(){
   if(!server){ log("Connecte-toi d'abord.","warn"); return; }
   setStatus("Découverte…","busy");
@@ -1891,7 +1943,7 @@ $("btnBmsRead").onclick=bmsReadCells;
     $("btnConnect").disabled=true;
     log("Web Bluetooth non disponible dans ce contexte.","err");
   } else {
-    log("Funmoov v46 prêt. Allume ton vélo et clique « Connecter ».","ok");
+    log("Funmoov v48 prêt. Allume ton vélo et clique « Connecter ».","ok");
   }
   if(!navigator.serial){
     $("btnBmsConnect").disabled=true;
