@@ -1039,13 +1039,13 @@
     </div>
     <div class="hint">Rapport automatique engagé (1 à 4), lu sur la caractéristique <b>5536</b>. « Suivi live » : tourne la roue ou roule pour voir les rapports passer en temps réel.</div>
     <div class="divider"></div>
-    <label>Alarme antivol <span class="exp-tag">À TESTER</span></label>
+    <label>Alarme antivol</label>
     <div class="btns">
       <button id="btnAlarmOff" disabled><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="11" width="15" height="9.5" rx="2"/><path d="M8 11 V7 a4 4 0 0 1 7.7 -1.5"/></svg> Désarmer</button>
       <button id="btnAlarmOn" disabled><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="11" width="15" height="9.5" rx="2"/><path d="M8 11 V7 a4 4 0 0 1 8 0 v4"/></svg> Armer</button>
       <button id="btnAlarmRead" disabled><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11.5 a8 8 0 1 0 -2.2 5.4"/><polyline points="20 4.5 20 11.5 13.5 11.5"/></svg> Lire l'état</button>
     </div>
-    <div class="hint">Expérimental — on écrit sur <b>ALARM_STATE</b>. Teste prudemment (ça peut déclencher la sirène). Dis-moi ce que fait chaque bouton et j'ajuste les valeurs.</div>
+    <div class="hint">Arme ou désarme l'alarme de mouvement (armé = 1, désarmé = 0, confirmé par la relecture). « Lire l'état » affiche l'état actuel.</div>
     <div class="divider"></div>
     <label>Lumières</label>
     <div class="btns seg-row">
@@ -1067,7 +1067,6 @@
       <button class="regionbtn" data-v="0" disabled><span class="rn">EU</span><small>25 km/h</small></button>
       <button class="regionbtn" data-v="2" disabled><span class="rn">JP</span><small>24 km/h</small></button>
       <button class="regionbtn" data-v="1" disabled><span class="rn">US</span><small>32 km/h</small></button>
-      <button class="regionbtn" data-v="3" disabled><span class="rn">Offroad</span><small>libre</small></button>
     </div>
     <div class="hint">⚠️ Dépasser la limite légale locale change le statut du vélo sur la voie publique.</div>
     <div class="divider"></div>
@@ -1159,7 +1158,6 @@
       <div class="tile"><div class="k">Distance</div><div class="v na" id="tDist">—</div></div>
       <div class="tile"><div class="k">Verrou</div><div class="v na" id="tLock">—</div></div>
       <div class="tile"><div class="k">Codes erreur</div><div class="v na err-tile" id="tErrors">—</div></div>
-      <div class="tile"><div class="k">Charge</div><div class="v na" id="tCharge">—</div></div>
     </div>
     <div class="btns" style="margin-top:16px">
       <button id="btnRead" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11.5 a8 8 0 1 0 -2.2 5.4"/><polyline points="20 4.5 20 11.5 13.5 11.5"/></svg> Lire le diagnostic</button>
@@ -1393,7 +1391,6 @@ async function readDiag(){
     await tile("MOTOR_BATTERY_LEVEL","tMotBat","barMot","%","level");
     await readDistance();
     await readLock();
-    await readCharge();
     await readInfos();
     setStatus("Authentifié","auth"); log("Diagnostic lu ✓","ok");
   }catch(e){ log("Erreur lecture: "+e.message,"err"); setStatus("Authentifié","auth"); }
@@ -1408,15 +1405,6 @@ async function tile(cDef,tileId,barId,unit,mode){
     if(barId){ const p=Math.max(0,Math.min(100,val)); $(barId).style.width=p+"%"; }
     log(`${cDef}: brut=${hex(raw)} déchiffré=${dec?hex(dec):"—"} → ${val}${unit}`,"rx");
   }catch(e){ log(`${cDef}: ${e.message}`,"warn"); }
-}
-async function readCharge(){
-  try{
-    const m=await readChar(C.MODULE_BATTERY_STATE); const mv=(m.dec||m.raw)[0];
-    const o=await readChar(C.MOTOR_BATTERY_STATE); const ov=(o.dec||o.raw)[0];
-    const t=$("tCharge"); if(t){ t.classList.remove("na");
-      t.innerHTML = (mv>1||ov>1 ? "En charge ?" : "Au repos") + ` <small>mod ${mv} · mot ${ov}</small>`; }
-    log(`État batterie → module=${mv} moteur=${ov}`,"rx");
-  }catch(e){ log("Charge: "+e.message,"warn"); }
 }
 async function readDistance(){
   try{
@@ -1528,8 +1516,10 @@ function toggleGearLive(){
   log("Suivi vitesse en direct — roule ou tourne la roue.","ok");
   gearTimer=setInterval(async()=>{
     if(busy) return;
+    busy=true;
     try{ const {dec}=await readChar(C.GEAR); if(dec) showGear(dec[0]); }
     catch(e){ stopGearLive(); log("Suivi vitesse interrompu: "+e.message,"warn"); }
+    finally{ busy=false; }
   },1000);
 }
 async function doLock(){
@@ -1966,7 +1956,7 @@ $("btnBmsRead").onclick=bmsReadCells;
     $("btnConnect").disabled=true;
     log("Web Bluetooth non disponible dans ce contexte.","err");
   } else {
-    log("Funmoov v49 prêt. Allume ton vélo et clique « Connecter ».","ok");
+    log("Funmoov v50 prêt. Allume ton vélo et clique « Connecter ».","ok");
   }
   if(!navigator.serial){
     $("btnBmsConnect").disabled=true;
