@@ -1039,6 +1039,14 @@
     </div>
     <div class="hint">Rapport automatique engagé (1 à 4), lu sur la caractéristique <b>5536</b>. « Suivi live » : tourne la roue ou roule pour voir les rapports passer en temps réel.</div>
     <div class="divider"></div>
+    <label>Alarme antivol <span class="exp-tag">À TESTER</span></label>
+    <div class="btns">
+      <button id="btnAlarmOff" disabled><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="11" width="15" height="9.5" rx="2"/><path d="M8 11 V7 a4 4 0 0 1 7.7 -1.5"/></svg> Désarmer</button>
+      <button id="btnAlarmOn" disabled><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="11" width="15" height="9.5" rx="2"/><path d="M8 11 V7 a4 4 0 0 1 8 0 v4"/></svg> Armer</button>
+      <button id="btnAlarmRead" disabled><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11.5 a8 8 0 1 0 -2.2 5.4"/><polyline points="20 4.5 20 11.5 13.5 11.5"/></svg> Lire l'état</button>
+    </div>
+    <div class="hint">Expérimental — on écrit sur <b>ALARM_STATE</b>. Teste prudemment (ça peut déclencher la sirène). Dis-moi ce que fait chaque bouton et j'ajuste les valeurs.</div>
+    <div class="divider"></div>
     <label>Lumières</label>
     <div class="btns seg-row">
       <button id="btnLightAuto" disabled><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><text x="12" y="15" text-anchor="middle" font-size="7.5" font-weight="700" fill="currentColor" stroke="none" font-family="Arial,sans-serif">A</text><line x1="12" y1="1.5" x2="12" y2="3.5"/><line x1="12" y1="20.5" x2="12" y2="22.5"/><line x1="1.5" y1="12" x2="3.5" y2="12"/><line x1="20.5" y1="12" x2="22.5" y2="12"/><line x1="4.6" y1="4.6" x2="6" y2="6"/><line x1="18" y1="18" x2="19.4" y2="19.4"/><line x1="4.6" y1="19.4" x2="6" y2="18"/><line x1="18" y1="6" x2="19.4" y2="4.6"/></svg> Auto</button>
@@ -1059,6 +1067,7 @@
       <button class="regionbtn" data-v="0" disabled><span class="rn">EU</span><small>25 km/h</small></button>
       <button class="regionbtn" data-v="2" disabled><span class="rn">JP</span><small>24 km/h</small></button>
       <button class="regionbtn" data-v="1" disabled><span class="rn">US</span><small>32 km/h</small></button>
+      <button class="regionbtn" data-v="3" disabled><span class="rn">Offroad</span><small>libre</small></button>
     </div>
     <div class="hint">⚠️ Dépasser la limite légale locale change le statut du vélo sur la voie publique.</div>
     <div class="divider"></div>
@@ -1150,6 +1159,7 @@
       <div class="tile"><div class="k">Distance</div><div class="v na" id="tDist">—</div></div>
       <div class="tile"><div class="k">Verrou</div><div class="v na" id="tLock">—</div></div>
       <div class="tile"><div class="k">Codes erreur</div><div class="v na err-tile" id="tErrors">—</div></div>
+      <div class="tile"><div class="k">Charge</div><div class="v na" id="tCharge">—</div></div>
     </div>
     <div class="btns" style="margin-top:16px">
       <button id="btnRead" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11.5 a8 8 0 1 0 -2.2 5.4"/><polyline points="20 4.5 20 11.5 13.5 11.5"/></svg> Lire le diagnostic</button>
@@ -1267,7 +1277,7 @@ function log(msg,cls="info"){
 const hex = bytes => Array.from(bytes).map(b=>b.toString(16).padStart(2,"0")).join("");
 function setStatus(txt,state){ $("statusTxt").textContent=txt; const d=$("dot"); d.className="dot"+(state?" "+state:""); }
 function setCtrl(on){
-  ["btnRead","btnFull","btnDiscover","btnRecord","btnUnlock","btnLock","btnSound","btnSoundNext","btnSetBell","btnReadCode","btnWriteCode","btnMonitor","btnHeroUnlock","btnLightAuto","btnLightOn","btnLightOff","btnGearRead","btnGearLive"].forEach(i=>$(i).disabled=!on);
+  ["btnRead","btnFull","btnDiscover","btnRecord","btnUnlock","btnLock","btnSound","btnSoundNext","btnSetBell","btnReadCode","btnWriteCode","btnMonitor","btnHeroUnlock","btnLightAuto","btnLightOn","btnLightOff","btnGearRead","btnGearLive","btnAlarmOff","btnAlarmOn","btnAlarmRead"].forEach(i=>$(i).disabled=!on);
   if(!on){ stopGearLive(); showGear(null); }
   document.querySelectorAll(".segbtn,.soundbtn,.regionbtn").forEach(b=>b.disabled=!on);
   if(!on && errMonitor){ clearInterval(errMonitor); errMonitor=null; $("btnMonitor").textContent="Surveiller les erreurs"; }
@@ -1383,6 +1393,7 @@ async function readDiag(){
     await tile("MOTOR_BATTERY_LEVEL","tMotBat","barMot","%","level");
     await readDistance();
     await readLock();
+    await readCharge();
     await readInfos();
     setStatus("Authentifié","auth"); log("Diagnostic lu ✓","ok");
   }catch(e){ log("Erreur lecture: "+e.message,"err"); setStatus("Authentifié","auth"); }
@@ -1397,6 +1408,15 @@ async function tile(cDef,tileId,barId,unit,mode){
     if(barId){ const p=Math.max(0,Math.min(100,val)); $(barId).style.width=p+"%"; }
     log(`${cDef}: brut=${hex(raw)} déchiffré=${dec?hex(dec):"—"} → ${val}${unit}`,"rx");
   }catch(e){ log(`${cDef}: ${e.message}`,"warn"); }
+}
+async function readCharge(){
+  try{
+    const m=await readChar(C.MODULE_BATTERY_STATE); const mv=(m.dec||m.raw)[0];
+    const o=await readChar(C.MOTOR_BATTERY_STATE); const ov=(o.dec||o.raw)[0];
+    const t=$("tCharge"); if(t){ t.classList.remove("na");
+      t.innerHTML = (mv>1||ov>1 ? "En charge ?" : "Au repos") + ` <small>mod ${mv} · mot ${ov}</small>`; }
+    log(`État batterie → module=${mv} moteur=${ov}`,"rx");
+  }catch(e){ log("Charge: "+e.message,"warn"); }
 }
 async function readDistance(){
   try{
@@ -1641,6 +1661,9 @@ $("btnRead").onclick=()=>doCmd(readDiag);
 $("btnFull").onclick=()=>doCmd(fullScan);
 $("btnGearRead").onclick=()=>doCmd(readGear);
 $("btnGearLive").onclick=()=>toggleGearLive();
+$("btnAlarmOff").onclick=()=>doCmd(()=>writeEncrypted(C.ALARM_STATE,[0],"Alarme désarmée"));
+$("btnAlarmOn").onclick=()=>doCmd(()=>writeEncrypted(C.ALARM_STATE,[1],"Alarme armée"));
+$("btnAlarmRead").onclick=()=>doCmd(async()=>{ const r=await readChar(C.ALARM_STATE); log("ALARM_STATE → "+((r.dec||r.raw)[0]),"rx"); });
 async function discoverAll(){
   if(!server){ log("Connecte-toi d'abord.","warn"); return; }
   setStatus("Découverte…","busy");
@@ -1943,7 +1966,7 @@ $("btnBmsRead").onclick=bmsReadCells;
     $("btnConnect").disabled=true;
     log("Web Bluetooth non disponible dans ce contexte.","err");
   } else {
-    log("Funmoov v48 prêt. Allume ton vélo et clique « Connecter ».","ok");
+    log("Funmoov v49 prêt. Allume ton vélo et clique « Connecter ».","ok");
   }
   if(!navigator.serial){
     $("btnBmsConnect").disabled=true;
