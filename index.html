@@ -1158,6 +1158,7 @@
       <div class="tile"><div class="k">Distance</div><div class="v na" id="tDist">—</div></div>
       <div class="tile"><div class="k">Verrou</div><div class="v na" id="tLock">—</div></div>
       <div class="tile"><div class="k">Codes erreur</div><div class="v na err-tile" id="tErrors">—</div></div>
+      <div class="tile"><div class="k">Charge</div><div class="v na" id="tCharge">—</div></div>
     </div>
     <div class="btns" style="margin-top:16px">
       <button id="btnRead" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11.5 a8 8 0 1 0 -2.2 5.4"/><polyline points="20 4.5 20 11.5 13.5 11.5"/></svg> Lire le diagnostic</button>
@@ -1391,6 +1392,7 @@ async function readDiag(){
     await tile("MOTOR_BATTERY_LEVEL","tMotBat","barMot","%","level");
     await readDistance();
     await readLock();
+    await readCharge();
     await readInfos();
     setStatus("Authentifié","auth"); log("Diagnostic lu ✓","ok");
   }catch(e){ log("Erreur lecture: "+e.message,"err"); setStatus("Authentifié","auth"); }
@@ -1405,6 +1407,16 @@ async function tile(cDef,tileId,barId,unit,mode){
     if(barId){ const p=Math.max(0,Math.min(100,val)); $(barId).style.width=p+"%"; }
     log(`${cDef}: brut=${hex(raw)} déchiffré=${dec?hex(dec):"—"} → ${val}${unit}`,"rx");
   }catch(e){ log(`${cDef}: ${e.message}`,"warn"); }
+}
+async function readCharge(){
+  try{
+    const {dec}=await readChar(C.MOTOR_BATTERY_LEVEL);
+    const flag = dec ? dec[4] : null;
+    const charging = flag===1;
+    const t=$("tCharge"); if(t){ t.classList.remove("na");
+      t.innerHTML = charging ? '⚡ En charge' : 'Débranché'; }
+    log("Charge → "+(charging?"EN CHARGE":"débranché")+" (5541 octet4="+(flag==null?"?":flag)+")","rx");
+  }catch(e){ log("Charge: "+e.message,"warn"); }
 }
 async function readDistance(){
   try{
@@ -1956,7 +1968,7 @@ $("btnBmsRead").onclick=bmsReadCells;
     $("btnConnect").disabled=true;
     log("Web Bluetooth non disponible dans ce contexte.","err");
   } else {
-    log("Funmoov v50 prêt. Allume ton vélo et clique « Connecter ».","ok");
+    log("Funmoov v51 prêt. Allume ton vélo et clique « Connecter ».","ok");
   }
   if(!navigator.serial){
     $("btnBmsConnect").disabled=true;
