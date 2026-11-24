@@ -1202,7 +1202,7 @@
       <div class="field" style="flex:0 0 108px"><select id="chgTarget"><option value="80">Cible 80 %</option><option value="90" selected>Cible 90 %</option><option value="95">Cible 95 %</option><option value="100">Cible 100 %</option></select></div>
       <button id="btnChgWatch" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12 s4 -6.5 10 -6.5 10 6.5 10 6.5 -4 6.5 -10 6.5 -10 -6.5 -10 -6.5z"/><circle cx="12" cy="12" r="2.8"/></svg> Alerte à la cible</button>
     </div>
-    <div id="chgStatus" class="hint" style="margin-top:8px">L'état de charge se met à jour tout seul (tuile + batterie du hero). Arme l'alerte pour être prévenu à la cible.</div>
+    <div id="chgStatus" class="hint" style="margin-top:8px">Charge détectée dès que le % monte (ça prend ~1-2 min pour le confirmer). Tuile + batterie du hero mises à jour toutes seules.</div>
     <div class="hint">« Alerte à la cible » : quand le niveau atteint ta cible pendant la charge, la sonnette du vélo sonne + message pour débrancher. Garde le téléphone connecté pendant la charge.</div>
   </div>
 
@@ -1460,15 +1460,25 @@ async function tile(cDef,tileId,barId,unit,mode){
   }catch(e){ log(`${cDef}: ${e.message}`,"warn"); }
 }
 function setHeroCharging(on){ const e=$("heroBat"); if(e) e.classList.toggle("charging", !!on); }
+// Détection de charge : octet4 de 5541 (quand il marche) OU % batterie qui monte (universel)
+let chgRiseAt=0, chgPrevMod=null, chgPrevMot=null;
+function chgResetTrend(){ chgRiseAt=0; chgPrevMod=null; chgPrevMot=null; }
+function chgUpdateTrend(modPct, motPct){
+  let rose=false;
+  if(motPct!=null){ if(chgPrevMot!=null && motPct>chgPrevMot) rose=true; chgPrevMot=motPct; }
+  if(modPct!=null){ if(chgPrevMod!=null && modPct>chgPrevMod) rose=true; chgPrevMod=modPct; }
+  if(rose) chgRiseAt=Date.now();
+}
+function chgIsCharging(flag){ return flag===1 || (chgRiseAt>0 && (Date.now()-chgRiseAt < 180000)); }
 async function readCharge(){
   try{
-    const {dec}=await readChar(C.MOTOR_BATTERY_LEVEL);
-    const flag = dec ? dec[4] : null;
-    const charging = flag===1;
-    const t=$("tCharge"); if(t){ t.classList.remove("na");
-      t.innerHTML = charging ? '⚡ En charge' : 'Débranché'; }
+    const fr=await readChar(C.MOTOR_BATTERY_LEVEL); const flag=fr.dec?fr.dec[4]:0; const motPct=fr.dec?fr.dec[0]:null;
+    const mr=await readChar(C.MODULE_BATTERY_LEVEL); const modPct=mr.dec?mr.dec[0]:null;
+    chgUpdateTrend(modPct, motPct);
+    const charging=chgIsCharging(flag);
+    const t=$("tCharge"); if(t){ t.classList.remove("na"); t.innerHTML=charging?'⚡ En charge':'Débranché'; }
     setHeroCharging(charging);
-    log("Charge → "+(charging?"EN CHARGE":"débranché")+" (5541 octet4="+(flag==null?"?":flag)+")","rx");
+    log("Charge → "+(charging?"EN CHARGE":"débranché")+" (octet4="+flag+", module="+modPct+"%, moteur="+motPct+"%)","rx");
   }catch(e){ log("Charge: "+e.message,"warn"); }
 }
 // ---------- Suivi de charge permanent + alerte cible ----------
@@ -1478,10 +1488,12 @@ async function chgPollTick(){
   if(busy||!server||!server.connected||recorder||errMonitor||rideTimer) return;
   busy=true;
   try{
-    const fr=await readChar(C.MOTOR_BATTERY_LEVEL); const charging=(fr.dec?fr.dec[4]:0)===1;
+    const fr=await readChar(C.MOTOR_BATTERY_LEVEL); const flag=fr.dec?fr.dec[4]:0; const motPct=fr.dec?fr.dec[0]:null;
+    const mr=await readChar(C.MODULE_BATTERY_LEVEL); const pct=mr.dec?mr.dec[0]:null;
+    chgUpdateTrend(pct, motPct);
+    const charging=chgIsCharging(flag);
     const t=$("tCharge"); if(t){ t.classList.remove("na"); t.innerHTML=(charging?'⚡ En charge':'Débranché'); }
     setHeroCharging(charging);
-    const mr=await readChar(C.MODULE_BATTERY_LEVEL); const pct=mr.dec?mr.dec[0]:null;
     if(pct!=null){ const hb=$("heroBatVal"); if(hb) hb.textContent=pct+"%"; }
     if(chgArmed){
       setChgStatus((charging?'⚡ En charge':'🔌 Débranché')+' · '+(pct==null?'?':pct+'%')+' (cible '+chgTarget+'%)');
@@ -1496,8 +1508,8 @@ async function chgPollTick(){
   }catch(e){ /* pépin GATT transitoire : on ignore et on continue */ }
   finally{ busy=false; }
 }
-function startChgPoll(){ if(chgPoll) return; chgPollTick(); chgPoll=setInterval(chgPollTick,6000); }
-function stopChgPoll(){ if(chgPoll){ clearInterval(chgPoll); chgPoll=null; } chgArmed=false; chgAlerted=false; const b=$("btnChgWatch"); if(b) b.classList.remove("rec-on"); }
+function startChgPoll(){ if(chgPoll) return; chgResetTrend(); chgPollTick(); chgPoll=setInterval(chgPollTick,6000); }
+function stopChgPoll(){ if(chgPoll){ clearInterval(chgPoll); chgPoll=null; } chgArmed=false; chgAlerted=false; chgResetTrend(); const b=$("btnChgWatch"); if(b) b.classList.remove("rec-on"); }
 function toggleChgWatch(){
   if(chgArmed){ chgArmed=false; $("btnChgWatch").classList.remove("rec-on"); setChgStatus('Alerte désactivée (le suivi continue).'); log('Alerte de charge désactivée.','info'); return; }
   if(!server||!server.connected){ log("Connecte-toi d'abord.","warn"); return; }
@@ -2120,7 +2132,7 @@ $("btnBmsRead").onclick=bmsReadCells;
     $("btnConnect").disabled=true;
     log("Web Bluetooth non disponible dans ce contexte.","err");
   } else {
-    log("Funmoov v63 prêt. Allume ton vélo et clique « Connecter ».","ok");
+    log("Funmoov v64 prêt. Allume ton vélo et clique « Connecter ».","ok");
   }
   if(!navigator.serial){
     $("btnBmsConnect").disabled=true;
