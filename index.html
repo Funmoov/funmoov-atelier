@@ -842,6 +842,8 @@
   .brand{font-family:'Silkscreen',ui-monospace,monospace;font-weight:700;font-size:19px;letter-spacing:.01em}
   .brand span{color:var(--amber)}
   .sub{font-size:10px;color:var(--dim);font-weight:500;margin-top:5px;text-transform:uppercase;letter-spacing:.11em}
+  .shareBtn{background:var(--card2);border:1px solid var(--line);color:var(--amber);width:40px;height:40px;border-radius:11px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:.15s;flex:0 0 auto}
+  .shareBtn:hover{border-color:var(--amber);background:#211d12}
   .status{margin-left:auto;display:flex;align-items:center;gap:9px;font-family:'Silkscreen',ui-monospace,monospace;
     font-size:10px;color:var(--amber);background:rgba(237,182,75,.05);border:1px solid var(--amberdim);
     padding:10px 15px;border-radius:30px;text-transform:uppercase;letter-spacing:.04em}
@@ -1002,6 +1004,7 @@
       </div>
     </div>
     <div class="status"><span class="dot" id="dot"></span><span id="statusTxt">Déconnecté</span></div>
+    <button class="shareBtn" id="btnShare" title="Partager l'app"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/></svg></button>
   </header>
 
   <div class="banner" id="banner"></div>
@@ -1805,6 +1808,13 @@ $("btnAlarmRead").onclick=()=>doCmd(async()=>{ const r=await readChar(C.ALARM_ST
 $("btnChgWatch").onclick=()=>toggleChgWatch();
 $("btnRideMode").onclick=()=>openRide();
 $("btnRideExit").onclick=()=>closeRide();
+$("btnShare").onclick=async()=>{
+  const url=location.origin+location.pathname;
+  const data={title:"Funmoov",text:"Funmoov — diagnostic et contrôle VanMoof S3/X3",url};
+  try{ if(navigator.share){ await navigator.share(data); return; } }catch(_){ return; }
+  try{ await navigator.clipboard.writeText(url); log("Lien de l'app copié : "+url,"ok"); }
+  catch(_){ prompt("Copie le lien de l'app :", url); }
+};
 async function discoverAll(){
   if(!server){ log("Connecte-toi d'abord.","warn"); return; }
   setStatus("Découverte…","busy");
@@ -2110,7 +2120,7 @@ $("btnBmsRead").onclick=bmsReadCells;
     $("btnConnect").disabled=true;
     log("Web Bluetooth non disponible dans ce contexte.","err");
   } else {
-    log("Funmoov v61 prêt. Allume ton vélo et clique « Connecter ».","ok");
+    log("Funmoov v62 prêt. Allume ton vélo et clique « Connecter ».","ok");
   }
   if(!navigator.serial){
     $("btnBmsConnect").disabled=true;
