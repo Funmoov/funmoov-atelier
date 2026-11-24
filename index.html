@@ -1207,7 +1207,7 @@
       <button id="btnChgWatch" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12 s4 -6.5 10 -6.5 10 6.5 10 6.5 -4 6.5 -10 6.5 -10 -6.5 -10 -6.5z"/><circle cx="12" cy="12" r="2.8"/></svg> Alerte à la cible</button>
     </div>
     <div class="row" style="margin-top:9px"><button id="btnChgProbe" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7 V4 M6 7 h12 v4 a6 6 0 0 1 -12 0z" stroke-width="1.5"/><path d="M12 17 v3"/><path d="M9 20 h6"/></svg> Détecter le signal de charge</button></div>
-    <div id="chgStatus" class="hint" style="margin-top:8px">Charge détectée dès que le % monte (ça prend ~1-2 min pour le confirmer). Tuile + batterie du hero mises à jour toutes seules.</div>
+    <div id="chgStatus" class="hint" style="margin-top:8px">Charge détectée via l'état batterie du vélo (quelques secondes). Tuile + batterie du hero mises à jour toutes seules.</div>
     <div class="hint">« Alerte à la cible » : quand le niveau atteint ta cible pendant la charge, la sonnette du vélo sonne + message pour débrancher. Garde le téléphone connecté pendant la charge.</div>
     <div class="hint"><b>Détecter le signal de charge</b> : chargeur <b>débranché</b>, clique le bouton (il prend une photo de l'état), puis <b>branche le chargeur</b>. L'app surveille 45 s et affiche dans le Journal quel octet change au branchement — envoie-moi ces lignes « ⚡ ».</div>
   </div>
@@ -1475,16 +1475,17 @@ function chgUpdateTrend(modPct, motPct){
   if(modPct!=null){ if(chgPrevMod!=null && modPct>chgPrevMod) rose=true; chgPrevMod=modPct; }
   if(rose) chgRiseAt=Date.now();
 }
-function chgIsCharging(flag){ return flag===1 || (chgRiseAt>0 && (Date.now()-chgRiseAt < 180000)); }
+function chgIsCharging(flag, sByte){ return (sByte>0) || flag===1 || (chgRiseAt>0 && (Date.now()-chgRiseAt < 180000)); }
 async function readCharge(){
   try{
+    const sr=await readChar(C.MOTOR_BATTERY_STATE); const sByte=sr.dec?sr.dec[0]:0;
     const fr=await readChar(C.MOTOR_BATTERY_LEVEL); const flag=fr.dec?fr.dec[4]:0; const motPct=fr.dec?fr.dec[0]:null;
     const mr=await readChar(C.MODULE_BATTERY_LEVEL); const modPct=mr.dec?mr.dec[0]:null;
     chgUpdateTrend(modPct, motPct);
-    const charging=chgIsCharging(flag);
+    const charging=chgIsCharging(flag, sByte);
     const t=$("tCharge"); if(t){ t.classList.remove("na"); t.innerHTML=charging?'⚡ En charge':'Débranché'; }
     setHeroCharging(charging);
-    log("Charge → "+(charging?"EN CHARGE":"débranché")+" (octet4="+flag+", module="+modPct+"%, moteur="+motPct+"%)","rx");
+    log("Charge → "+(charging?"EN CHARGE":"débranché")+" (état="+sByte+", octet4="+flag+", module="+modPct+"%, moteur="+motPct+"%)","rx");
   }catch(e){ log("Charge: "+e.message,"warn"); }
 }
 // ---------- Suivi de charge permanent + alerte cible ----------
@@ -1494,10 +1495,11 @@ async function chgPollTick(){
   if(busy||!server||!server.connected||rideTimer) return;
   busy=true;
   try{
+    const sr=await readChar(C.MOTOR_BATTERY_STATE); const sByte=sr.dec?sr.dec[0]:0;
     const fr=await readChar(C.MOTOR_BATTERY_LEVEL); const flag=fr.dec?fr.dec[4]:0; const motPct=fr.dec?fr.dec[0]:null;
     const mr=await readChar(C.MODULE_BATTERY_LEVEL); const pct=mr.dec?mr.dec[0]:null;
     chgUpdateTrend(pct, motPct);
-    const charging=chgIsCharging(flag);
+    const charging=chgIsCharging(flag, sByte);
     const t=$("tCharge"); if(t){ t.classList.remove("na"); t.innerHTML=(charging?'⚡ En charge':'Débranché'); }
     setHeroCharging(charging);
     // tuiles batterie (module + moteur) et hero mises à jour en direct
@@ -1518,7 +1520,7 @@ async function chgPollTick(){
   }catch(e){ /* pépin GATT transitoire : on ignore et on continue */ }
   finally{ busy=false; }
 }
-function startChgPoll(){ if(chgPoll) return; chgResetTrend(); chgPollTick(); chgPoll=setInterval(chgPollTick,6000); }
+function startChgPoll(){ if(chgPoll) return; chgResetTrend(); chgPollTick(); chgPoll=setInterval(chgPollTick,4000); }
 function stopChgPoll(){ if(chgPoll){ clearInterval(chgPoll); chgPoll=null; } chgArmed=false; chgAlerted=false; chgResetTrend(); const b=$("btnChgWatch"); if(b) b.classList.remove("rec-on"); }
 function toggleChgWatch(){
   if(chgArmed){ chgArmed=false; $("btnChgWatch").classList.remove("rec-on"); setChgStatus('Alerte désactivée (le suivi continue).'); log('Alerte de charge désactivée.','info'); return; }
@@ -2191,7 +2193,7 @@ $("btnBmsRead").onclick=bmsReadCells;
     $("btnConnect").disabled=true;
     log("Web Bluetooth non disponible dans ce contexte.","err");
   } else {
-    log("Funmoov v72 prêt. Allume ton vélo et clique « Connecter ».","ok");
+    log("Funmoov v73 prêt. Allume ton vélo et clique « Connecter ».","ok");
   }
   if(!navigator.serial){
     $("btnBmsConnect").disabled=true;
