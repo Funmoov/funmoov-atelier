@@ -1833,6 +1833,7 @@ $("btnDiscover").onclick=()=>doCmd(discoverAll);
 let recorder=null; const recSnap={}; const REC_SKIP=["5531","5532"]; // DISTANCE, SPEED = bruit en roulant
 async function recordTick(){
   if(busy||!server) return;
+  busy=true;
   try{
     const services=await server.getPrimaryServices();
     const KN={}; for(const k in C) KN[C[k][1]]=k;
@@ -1853,6 +1854,7 @@ async function recordTick(){
       }
     }
   }catch(_){}
+  finally{ busy=false; }
 }
 $("btnRecord").onclick=()=>{
   if(recorder){ clearInterval(recorder); recorder=null; $("btnRecord").classList.remove("active"); log("Enregistrement arr\u00eat\u00e9.","info"); }
@@ -2102,7 +2104,7 @@ $("btnBmsRead").onclick=bmsReadCells;
     $("btnConnect").disabled=true;
     log("Web Bluetooth non disponible dans ce contexte.","err");
   } else {
-    log("Funmoov v59 prêt. Allume ton vélo et clique « Connecter ».","ok");
+    log("Funmoov v60 prêt. Allume ton vélo et clique « Connecter ».","ok");
   }
   if(!navigator.serial){
     $("btnBmsConnect").disabled=true;
