@@ -962,16 +962,20 @@
   @keyframes batf1{0%{opacity:.14}12%,100%{opacity:1}}
   @keyframes batf2{0%,33%{opacity:.14}45%,100%{opacity:1}}
   @keyframes batf3{0%,66%{opacity:.14}78%,100%{opacity:1}}
-  .ridemode{position:fixed;inset:0;z-index:9999;background:#070708;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:40px;padding:20px}
+  .ridemode{position:fixed;inset:0;z-index:9999;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:40px;padding:20px}
+  .ridemode[hidden]{display:none}
   .ride-exit{position:absolute;top:16px;right:16px;background:var(--card2);border:1px solid var(--line);color:var(--txt);padding:10px 16px;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer}
   .ride-speed{display:flex;flex-direction:column;align-items:center;transition:opacity .45s}
   .ride-speed.idle{opacity:.1}
-  .ride-num{font-family:'Silkscreen',ui-monospace,monospace;font-size:38vw;line-height:.86;color:var(--amber);text-shadow:0 0 40px rgba(237,182,75,.3)}
+  .ride-num{--dot:min(6vw,52px);--gap:min(1.5vw,13px);display:flex;gap:calc(var(--dot)*1.1);justify-content:center}
+  .dmd{display:grid;grid-template-columns:repeat(5,var(--dot));grid-template-rows:repeat(7,var(--dot));gap:var(--gap)}
+  .dmd .d{width:var(--dot);height:var(--dot);border-radius:50%;background:#eef2f6;opacity:.05}
+  .dmd .d.on{opacity:.97;box-shadow:0 0 calc(var(--dot)*0.75) rgba(255,255,255,.45)}
   .ride-unit{font-size:6vw;color:var(--mut);letter-spacing:.14em;margin-top:14px;text-transform:uppercase}
   .ride-meta{display:flex;gap:18px}
   .ride-chip{display:flex;flex-direction:column;align-items:center;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 30px;min-width:118px}
   .ride-chip .rl{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.09em;font-weight:600}
-  .ride-chip span:last-child{font-family:'Silkscreen',ui-monospace,monospace;font-size:30px;color:var(--amber)}
+  .ride-chip span:last-child{font-family:'Silkscreen',ui-monospace,monospace;font-size:30px;color:#eef2f6}
   .hero-label{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.09em;font-weight:600}
   .hero-name{font-family:'Silkscreen',ui-monospace,monospace;font-size:19px;color:var(--txt);margin-top:7px;word-break:break-word}
   .hero-bat{margin-left:auto;display:flex;align-items:center;gap:7px;font-family:'Silkscreen',ui-monospace,monospace;font-size:15px;color:var(--amber)}
@@ -1496,12 +1500,34 @@ function toggleChgWatch(){
   chgTimer=setInterval(()=>chgTick(target),5000);
 }
 // ---------- Mode roulage (tableau de bord plein écran) ----------
-let rideTimer=null, rideBatN=0, rideWake=null;
+const DMFONT={
+ '0':['01110','10001','10011','10101','11001','10001','01110'],
+ '1':['00100','01100','00100','00100','00100','00100','01110'],
+ '2':['01110','10001','00001','00010','00100','01000','11111'],
+ '3':['11111','00010','00100','00010','00001','10001','01110'],
+ '4':['00010','00110','01010','10010','11111','00010','00010'],
+ '5':['11111','10000','11110','00001','00001','10001','01110'],
+ '6':['00110','01000','10000','11110','10001','10001','01110'],
+ '7':['11111','00001','00010','00100','01000','01000','01000'],
+ '8':['01110','10001','10001','01110','10001','10001','01110'],
+ '9':['01110','10001','10001','01111','00001','00010','01100'],
+ ' ':['00000','00000','00000','00000','00000','00000','00000']
+};
+function matrixDigits(str){
+  let html='';
+  for(const ch of String(str)){
+    const pat=DMFONT[ch]||DMFONT[' ']; html+='<div class="dmd">';
+    for(const row of pat){ for(const b of row){ html+='<span class="d'+(b==='1'?' on':'')+'"></span>'; } }
+    html+='</div>';
+  }
+  return html;
+}
+let rideTimer=null, rideBatN=0, rideWake=null, rideLastSp=null;
 async function openRide(){
   if(!server||!server.connected){ log("Connecte-toi d'abord.","warn"); return; }
   $("rideMode").hidden=false;
   try{ if(navigator.wakeLock) rideWake=await navigator.wakeLock.request("screen"); }catch(_){}
-  rideBatN=0; rideTick();
+  rideBatN=0; rideLastSp=null; $("rideSpeed").innerHTML=matrixDigits("0"); rideTick();
   rideTimer=setInterval(rideTick,900);
   log("Mode roulage activé.","ok");
 }
@@ -1515,7 +1541,7 @@ async function rideTick(){
   try{
     const sr=await readChar(C.SPEED); const sp=sr.dec?sr.dec[0]:0;
     const gr=await readChar(C.GEAR); const g=gr.dec?gr.dec[0]:null;
-    $("rideSpeed").textContent=sp;
+    if(sp!==rideLastSp){ $("rideSpeed").innerHTML=matrixDigits(String(sp)); rideLastSp=sp; }
     $("rideSpeedWrap").classList.toggle("idle", !sp);
     if(g!=null) $("rideGear").textContent=(g>=1&&g<=4?g:"—");
     if(rideBatN%12===0){ const br=await readChar(C.MODULE_BATTERY_LEVEL); if(br.dec) $("rideBat").textContent=br.dec[0]+"%"; }
@@ -2076,7 +2102,7 @@ $("btnBmsRead").onclick=bmsReadCells;
     $("btnConnect").disabled=true;
     log("Web Bluetooth non disponible dans ce contexte.","err");
   } else {
-    log("Funmoov v56 prêt. Allume ton vélo et clique « Connecter ».","ok");
+    log("Funmoov v59 prêt. Allume ton vélo et clique « Connecter ».","ok");
   }
   if(!navigator.serial){
     $("btnBmsConnect").disabled=true;
