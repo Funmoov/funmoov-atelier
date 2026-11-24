@@ -1206,8 +1206,10 @@
       <div class="field" style="flex:0 0 108px"><select id="chgTarget"><option value="80">Cible 80 %</option><option value="90" selected>Cible 90 %</option><option value="95">Cible 95 %</option><option value="100">Cible 100 %</option></select></div>
       <button id="btnChgWatch" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12 s4 -6.5 10 -6.5 10 6.5 10 6.5 -4 6.5 -10 6.5 -10 -6.5 -10 -6.5z"/><circle cx="12" cy="12" r="2.8"/></svg> Alerte à la cible</button>
     </div>
+    <div class="row" style="margin-top:9px"><button id="btnChgProbe" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7 V4 M6 7 h12 v4 a6 6 0 0 1 -12 0z" stroke-width="1.5"/><path d="M12 17 v3"/><path d="M9 20 h6"/></svg> Détecter le signal de charge</button></div>
     <div id="chgStatus" class="hint" style="margin-top:8px">Charge détectée dès que le % monte (ça prend ~1-2 min pour le confirmer). Tuile + batterie du hero mises à jour toutes seules.</div>
     <div class="hint">« Alerte à la cible » : quand le niveau atteint ta cible pendant la charge, la sonnette du vélo sonne + message pour débrancher. Garde le téléphone connecté pendant la charge.</div>
+    <div class="hint"><b>Détecter le signal de charge</b> : chargeur <b>débranché</b>, clique le bouton (il prend une photo de l'état), puis <b>branche le chargeur</b>. L'app surveille 45 s et affiche dans le Journal quel octet change au branchement — envoie-moi ces lignes « ⚡ ».</div>
   </div>
 
 
@@ -1330,9 +1332,9 @@ function log(msg,cls="info"){
 const hex = bytes => Array.from(bytes).map(b=>b.toString(16).padStart(2,"0")).join("");
 function setStatus(txt,state){ $("statusTxt").textContent=txt; const d=$("dot"); d.className="dot"+(state?" "+state:""); }
 function setCtrl(on){
-  ["btnRead","btnFull","btnDiscover","btnRecord","btnUnlock","btnLock","btnSound","btnSoundNext","btnSetBell","btnReadCode","btnWriteCode","btnMonitor","btnHeroUnlock","btnLightAuto","btnLightOn","btnLightOff","btnGearRead","btnGearLive","btnAlarmOff","btnAlarmOn","btnAlarmRead","btnChgWatch","btnRideMode"].forEach(i=>$(i).disabled=!on);
+  ["btnRead","btnFull","btnDiscover","btnRecord","btnUnlock","btnLock","btnSound","btnSoundNext","btnSetBell","btnReadCode","btnWriteCode","btnMonitor","btnHeroUnlock","btnLightAuto","btnLightOn","btnLightOff","btnGearRead","btnGearLive","btnAlarmOff","btnAlarmOn","btnAlarmRead","btnChgWatch","btnChgProbe","btnRideMode"].forEach(i=>$(i).disabled=!on);
   if(on){ startChgPoll(); }
-  else { stopGearLive(); showGear(null); stopChgPoll(); setHeroCharging(false); closeRide(); }
+  else { stopGearLive(); showGear(null); stopChgPoll(); stopChgProbe(); setHeroCharging(false); closeRide(); }
   document.querySelectorAll(".segbtn,.soundbtn,.regionbtn").forEach(b=>b.disabled=!on);
   if(!on && errMonitor){ clearInterval(errMonitor); errMonitor=null; $("btnMonitor").textContent="Surveiller les erreurs"; }
   if(!on && recorder){ clearInterval(recorder); recorder=null; recByRide=false; $("btnRecord").classList.remove("active"); }
@@ -1527,6 +1529,47 @@ function toggleChgWatch(){
   log('Alerte de charge armée (cible '+chgTarget+'%).','ok');
   chgPollTick();
 }
+// ---------- Détecteur du signal de charge (trouve l'octet qui change au branchement) ----------
+let chgProbeTimer=null;
+async function chgProbeSnap(){
+  const snap={};
+  if(busy||!server) return snap; busy=true;
+  try{
+    const services=await server.getPrimaryServices();
+    const KN={}; for(const k in C) KN[C[k][1]]=k;
+    for(const svc of services){ let chars; try{ chars=await svc.getCharacteristics(); }catch(_){ continue; }
+      for(const ch of chars){ if(!ch.properties.read) continue; const short=ch.uuid.slice(4,8);
+        if(["5531","5532"].includes(short)) continue; // distance/vitesse = bruit
+        try{ const dv=await ch.readValue(); const raw=new Uint8Array(dv.buffer.slice(0));
+          let dec=null; try{ dec=ecbDec(pad16(raw)); }catch(_){}
+          snap[short]={v:hex(dec||raw), name:KN[short]||"???"};
+        }catch(_){}
+      } }
+  }catch(_){} finally{ busy=false; }
+  return snap;
+}
+async function startChgProbe(){
+  if(chgProbeTimer){ clearInterval(chgProbeTimer); chgProbeTimer=null; $("btnChgProbe").classList.remove("rec-on"); log("Détection de charge arrêtée.","info"); return; }
+  if(!server||!server.connected){ log("Connecte-toi d'abord.","warn"); return; }
+  if(!authed){ log("Authentifie-toi d'abord.","warn"); return; }
+  log("📸 Capture de l'état DÉBRANCHÉ en cours… (garde le chargeur débranché)","info");
+  const base=await chgProbeSnap();
+  const n=Object.keys(base).length;
+  if(!n){ log("Impossible de lire les caractéristiques, réessaie.","warn"); return; }
+  log("✅ Référence prise ("+n+" caractéristiques). 🔌 BRANCHE le chargeur maintenant — je surveille 45 s.","ok");
+  $("btnChgProbe").classList.add("rec-on");
+  let elapsed=0, found=false;
+  chgProbeTimer=setInterval(async()=>{
+    elapsed+=3;
+    const now=await chgProbeSnap();
+    for(const k in now){ if(base[k] && base[k].v!==now[k].v){ found=true;
+      log("⚡ "+k+" "+now[k].name+" : "+base[k].v+" → "+now[k].v, "ok");
+      base[k].v=now[k].v; } }
+    if(elapsed>=45){ clearInterval(chgProbeTimer); chgProbeTimer=null; $("btnChgProbe").classList.remove("rec-on");
+      log(found?"🏁 Fin du test. Les lignes « ⚡ » montrent les octets qui ont changé au branchement — copie-les-moi (bouton Copier le journal).":"🏁 Fin du test : AUCUN octet lisible n'a changé. Le vélo pousse peut-être l'info par notification (à explorer).", found?"ok":"warn"); }
+  }, 3000);
+}
+function stopChgProbe(){ if(chgProbeTimer){ clearInterval(chgProbeTimer); chgProbeTimer=null; } const b=$("btnChgProbe"); if(b) b.classList.remove("rec-on"); }
 // ---------- Mode roulage (tableau de bord plein écran) ----------
 const DMFONT={
  '0':['01110','10001','10011','10101','11001','10001','01110'],
@@ -1833,6 +1876,7 @@ $("btnAlarmOff").onclick=()=>doCmd(()=>writeEncrypted(C.ALARM_STATE,[0],"Alarme 
 $("btnAlarmOn").onclick=()=>doCmd(()=>writeEncrypted(C.ALARM_STATE,[1],"Alarme armée"));
 $("btnAlarmRead").onclick=()=>doCmd(async()=>{ const r=await readChar(C.ALARM_STATE); log("ALARM_STATE → "+((r.dec||r.raw)[0]),"rx"); });
 $("btnChgWatch").onclick=()=>toggleChgWatch();
+$("btnChgProbe").onclick=()=>startChgProbe();
 $("btnRideMode").onclick=()=>openRide();
 $("btnRideExit").onclick=()=>closeRide();
 $("btnShare").onclick=async()=>{
@@ -2147,7 +2191,7 @@ $("btnBmsRead").onclick=bmsReadCells;
     $("btnConnect").disabled=true;
     log("Web Bluetooth non disponible dans ce contexte.","err");
   } else {
-    log("Funmoov v71 prêt. Allume ton vélo et clique « Connecter ».","ok");
+    log("Funmoov v72 prêt. Allume ton vélo et clique « Connecter ».","ok");
   }
   if(!navigator.serial){
     $("btnBmsConnect").disabled=true;
