@@ -1723,7 +1723,7 @@ function setHeroMoof(model){ const k=moofKey(model), box=$("heroMoof"), img=$("h
 function updateHeroName(){
   const n=$("bikeName").value.trim();
   $("heroName").textContent = n || "Nouveau vélo";
-  setHeroMoof(currentBikeModel());
+  setHeroMoof(currentBikeModel()+" "+n);
 }
 $("bikeSel").onchange=e=>{ if(e.target.value){ loadBike(e.target.value); } else { $("bikeName").value=""; $("key").value=""; $("ukid").value=1; updateHeroName(); } };
 $("bikeName").oninput=()=>updateHeroName();
@@ -2147,7 +2147,7 @@ $("btnBmsRead").onclick=bmsReadCells;
     $("btnConnect").disabled=true;
     log("Web Bluetooth non disponible dans ce contexte.","err");
   } else {
-    log("Funmoov v70 prêt. Allume ton vélo et clique « Connecter ».","ok");
+    log("Funmoov v71 prêt. Allume ton vélo et clique « Connecter ».","ok");
   }
   if(!navigator.serial){
     $("btnBmsConnect").disabled=true;
