@@ -1475,7 +1475,7 @@ async function readCharge(){
 let chgPoll=null, chgArmed=false, chgTarget=90, chgAlerted=false;
 function setChgStatus(t){ const e=$("chgStatus"); if(e) e.textContent=t; }
 async function chgPollTick(){
-  if(busy||!server||!server.connected) return;
+  if(busy||!server||!server.connected||recorder||errMonitor||rideTimer) return;
   busy=true;
   try{
     const fr=await readChar(C.MOTOR_BATTERY_LEVEL); const charging=(fr.dec?fr.dec[4]:0)===1;
@@ -2120,7 +2120,7 @@ $("btnBmsRead").onclick=bmsReadCells;
     $("btnConnect").disabled=true;
     log("Web Bluetooth non disponible dans ce contexte.","err");
   } else {
-    log("Funmoov v62 prêt. Allume ton vélo et clique « Connecter ».","ok");
+    log("Funmoov v63 prêt. Allume ton vélo et clique « Connecter ».","ok");
   }
   if(!navigator.serial){
     $("btnBmsConnect").disabled=true;
