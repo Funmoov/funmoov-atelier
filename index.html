@@ -1331,7 +1331,7 @@ function setCtrl(on){
   else { stopGearLive(); showGear(null); stopChgPoll(); setHeroCharging(false); closeRide(); }
   document.querySelectorAll(".segbtn,.soundbtn,.regionbtn").forEach(b=>b.disabled=!on);
   if(!on && errMonitor){ clearInterval(errMonitor); errMonitor=null; $("btnMonitor").textContent="Surveiller les erreurs"; }
-  if(!on && recorder){ clearInterval(recorder); recorder=null; $("btnRecord").classList.remove("active"); }
+  if(!on && recorder){ clearInterval(recorder); recorder=null; recByRide=false; $("btnRecord").classList.remove("active"); }
 }
 
 // ---------- AES-ECB (via aes-js) ----------
@@ -1553,12 +1553,14 @@ async function openRide(){
   try{ if(navigator.wakeLock) rideWake=await navigator.wakeLock.request("screen"); }catch(_){}
   rideBatN=0; rideLastSp=null; $("rideSpeed").innerHTML=matrixDigits("0"); rideTick();
   rideTimer=setInterval(rideTick,900);
+  if(authed && !recorder){ for(const k in recSnap) delete recSnap[k]; recorder=setInterval(recordTick,2500); $("btnRecord").classList.add("active"); recByRide=true; log("Enregistrement démarré automatiquement (roulage).","ok"); }
   log("Mode roulage activé.","ok");
 }
 function closeRide(){
   if(rideTimer){ clearInterval(rideTimer); rideTimer=null; }
   const r=$("rideMode"); if(r) r.hidden=true;
   try{ if(rideWake){ rideWake.release(); rideWake=null; } }catch(_){}
+  if(recByRide && recorder){ clearInterval(recorder); recorder=null; $("btnRecord").classList.remove("active"); recByRide=false; log("Enregistrement arrêté (fin du roulage).","info"); }
 }
 async function rideTick(){
   if(busy) return; busy=true;
@@ -1861,7 +1863,7 @@ async function discoverAll(){
   setStatus("Authentifié","auth");
 }
 $("btnDiscover").onclick=()=>doCmd(discoverAll);
-let recorder=null; const recSnap={}; const REC_SKIP=["5531","5532"]; // DISTANCE, SPEED = bruit en roulant
+let recorder=null, recByRide=false; const recSnap={}; const REC_SKIP=["5531","5532"]; // DISTANCE, SPEED = bruit en roulant
 async function recordTick(){
   if(busy||!server) return;
   busy=true;
@@ -1888,10 +1890,10 @@ async function recordTick(){
   finally{ busy=false; }
 }
 $("btnRecord").onclick=()=>{
-  if(recorder){ clearInterval(recorder); recorder=null; $("btnRecord").classList.remove("active"); log("Enregistrement arr\u00eat\u00e9.","info"); }
+  if(recorder){ clearInterval(recorder); recorder=null; recByRide=false; $("btnRecord").classList.remove("active"); log("Enregistrement arr\u00eat\u00e9.","info"); }
   else { if(!authed){ log("Authentifie-toi d'abord.","warn"); return; }
     for(const k in recSnap) delete recSnap[k];
-    recorder=setInterval(recordTick,2000); $("btnRecord").classList.add("active");
+    recorder=setInterval(recordTick,2000); recByRide=false; $("btnRecord").classList.add("active");
     log("Enregistrement roulage activ\u00e9 \u2014 roule, puis reviens voir le journal (les \u0394 montrent ce qui change).","ok");
   }
 };
@@ -2136,7 +2138,7 @@ $("btnBmsRead").onclick=bmsReadCells;
     $("btnConnect").disabled=true;
     log("Web Bluetooth non disponible dans ce contexte.","err");
   } else {
-    log("Funmoov v67 prêt. Allume ton vélo et clique « Connecter ».","ok");
+    log("Funmoov v68 prêt. Allume ton vélo et clique « Connecter ».","ok");
   }
   if(!navigator.serial){
     $("btnBmsConnect").disabled=true;
