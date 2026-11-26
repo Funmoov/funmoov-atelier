@@ -1186,7 +1186,7 @@
       <span class="hint" id="vmStatus" style="margin:0"></span>
     </div>
     <details style="margin-top:12px">
-      <summary style="cursor:pointer;color:var(--dim);font-size:12px">⚙️ Configurer le relais (une fois)</summary>
+      <summary style="cursor:pointer;color:var(--dim);font-size:12px">⚙️ Relais (avancé — déjà configuré)</summary>
       <div class="row" style="margin-top:10px;align-items:flex-end">
         <div class="field">
           <label>URL du relais Vercel</label>
@@ -1194,7 +1194,7 @@
         </div>
         <button id="btnSaveEndpoint"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3 h11 l3 3 v15 H5 Z"/><rect x="8" y="3" width="8" height="5"/><rect x="8.5" y="13" width="7" height="5"/></svg> Enregistrer</button>
       </div>
-      <div class="hint">Déploie le relais Funmoov sur Vercel (gratuit), puis colle son URL ici. Voir le tuto plus bas.</div>
+      <div class="hint">L'app utilise déjà le relais Funmoov par défaut — rien à faire ici. Ce champ ne sert que si tu veux pointer vers ton propre relais.</div>
     </details>
   </div>
 
@@ -1931,7 +1931,8 @@ function doImport(txt){
 }
 // ---------- Extraction directe des clés via le relais Vercel ----------
 const KEYS_EP_STORE="fm_keys_endpoint";
-function getKeysEndpoint(){ try{ return (localStorage.getItem(KEYS_EP_STORE)||"").trim(); }catch(_){ return ""; } }
+const KEYS_EP_DEFAULT="https://funmoov-cles.vercel.app/api/cles-vanmoof"; // relais Funmoov (partagé par tous les clients)
+function getKeysEndpoint(){ try{ return (localStorage.getItem(KEYS_EP_STORE)||"").trim() || KEYS_EP_DEFAULT; }catch(_){ return KEYS_EP_DEFAULT; } }
 function setVmStatus(t){ const e=$("vmStatus"); if(e) e.textContent=t||""; }
 async function fetchKeysDirect(){
   const ep=getKeysEndpoint();
@@ -2296,7 +2297,7 @@ $("btnBmsRead").onclick=bmsReadCells;
     $("btnConnect").disabled=true;
     log("Web Bluetooth non disponible dans ce contexte.","err");
   } else {
-    log("Funmoov v83 prêt. Allume ton vélo et clique « Connecter ».","ok");
+    log("Funmoov v84 prêt. Allume ton vélo et clique « Connecter ».","ok");
   }
   if(!navigator.serial){
     $("btnBmsConnect").disabled=true;
