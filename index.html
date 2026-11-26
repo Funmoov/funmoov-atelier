@@ -906,7 +906,9 @@
   .gkv:last-of-type{border-bottom:none}
   .gkv span{color:var(--dim)}
   .gkv b{font-weight:600;text-align:right;word-break:break-word}
-  .gcard .gconnect{margin-top:13px;width:100%;justify-content:center}
+  .gcard .grow{display:flex;gap:8px;margin-top:13px}
+  .gcard .gconnect{flex:1;justify-content:center}
+  .gcard .gdel{flex:0 0 auto;padding:0 12px}
   .geardisp{font-family:'Silkscreen',ui-monospace,monospace;font-size:50px;line-height:1;color:var(--amber);min-width:58px;text-align:center}
   .gearpips{display:flex;gap:8px}
   .gearpips .pip{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;color:var(--dim);background:var(--tile);transition:.12s}
@@ -1213,20 +1215,6 @@
     </div>
   </div>
 
-  <!-- TUTO CLÉS -->
-  <div class="card">
-    <h2><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5 a2 2 0 0 1 2 -2 h5 v16 H6 a2 2 0 0 0 -2 2 Z"/><path d="M20 5 a2 2 0 0 0 -2 -2 h-5 v16 h5 a2 2 0 0 1 2 2 Z"/></svg></span> Tuto : récupérer et importer tes clés</h2>
-    <ol class="tuto">
-      <li>Sur un <b>ordinateur</b> (Windows ou Mac), récupère le script <code>recuperer-cles-vanmoof.py</code> (lien sur <a href="https://funmoovparis.fr" target="_blank" rel="noopener">funmoovparis.fr</a>).</li>
-      <li>Installe <b>Python</b> si besoin (<a href="https://www.python.org/downloads/" target="_blank" rel="noopener">python.org</a> — à l'installation, coche « Add Python to PATH »).</li>
-      <li>Ouvre un terminal dans le dossier du script et lance :<br><code>python recuperer-cles-vanmoof.py</code></li>
-      <li>Saisis l'<b>e-mail</b> et le <b>mot de passe</b> de ton compte VanMoof. ⚠️ Ils servent <u>uniquement</u> à interroger le serveur VanMoof — rien n'est envoyé à Funmoov.</li>
-      <li>Le script affiche tes vélos (nom, cadre, MAC, clé…) et crée le fichier <code>mes-cles-vanmoof.txt</code>.</li>
-      <li>Reviens ici, dans <b>« Importer mes clés »</b> ci-dessus : colle le texte ou dépose le fichier, puis <b>Importer</b>.</li>
-      <li>Tes vélos apparaissent dans le Garage, prêts à connecter. 🎉</li>
-    </ol>
-    <div class="hint">💡 Erreur <code>getaddrinfo failed</code> / « Pas de connexion » ? Coupe ton <b>VPN</b> (il peut bloquer l'accès au serveur VanMoof), puis relance le script.</div>
-  </div>
 
   </div>
 
@@ -2188,8 +2176,17 @@ function renderGarage(){
       '<div class="gkv"><span>N° de cadre</span><b>'+esc(b.frame||"—")+'</b></div>'+
       '<div class="gkv"><span>Adresse MAC</span><b class="mono">'+esc(b.mac||"—")+'</b></div>'+
       '<div class="gkv"><span>Clé</span><b class="mono">'+keyTxt+'</b></div>'+
-      '<button class="primary gconnect"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17 H7 a5 5 0 0 1 0 -10 h2"/><path d="M15 7 h2 a5 5 0 0 1 0 10 h-2"/><line x1="8" y1="12" x2="16" y2="12"/></svg> Sélectionner &amp; connecter</button>';
+      '<div class="grow">'+
+        '<button class="primary gconnect"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17 H7 a5 5 0 0 1 0 -10 h2"/><path d="M15 7 h2 a5 5 0 0 1 0 10 h-2"/><line x1="8" y1="12" x2="16" y2="12"/></svg> Sélectionner &amp; connecter</button>'+
+        '<button class="danger gdel" title="Supprimer ce vélo"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 20 7"/><path d="M6 7 l1 13 a1.5 1.5 0 0 0 1.5 1.4 h7 a1.5 1.5 0 0 0 1.5 -1.4 l1 -13"/><path d="M9.5 7 V4.5 h5 V7"/></svg></button>'+
+      '</div>';
     c.querySelector(".gconnect").onclick=()=>selectAndConnect(b.name);
+    c.querySelector(".gdel").onclick=()=>{
+      if(!confirm('Supprimer le vélo « '+b.name+' » ?')) return;
+      const rm = b.key ? (x=>x.key!==b.key) : (x=>x.name!==b.name);
+      saveBikes(getBikes().filter(rm)); refreshBikeSel(""); renderGarage();
+      log('Vélo supprimé : '+b.name,'warn');
+    };
     wrap.appendChild(c);
   });
 }
@@ -2305,7 +2302,7 @@ $("btnBmsRead").onclick=bmsReadCells;
     $("btnConnect").disabled=true;
     log("Web Bluetooth non disponible dans ce contexte.","err");
   } else {
-    log("Funmoov v85 prêt. Allume ton vélo et clique « Connecter ».","ok");
+    log("Funmoov v86 prêt. Allume ton vélo et clique « Connecter ».","ok");
   }
   if(!navigator.serial){
     $("btnBmsConnect").disabled=true;
