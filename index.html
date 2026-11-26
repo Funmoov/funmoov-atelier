@@ -909,6 +909,10 @@
   .gcard .grow{display:flex;gap:8px;margin-top:13px}
   .gcard .gconnect{flex:1;justify-content:center}
   .gcard .gdel{flex:0 0 auto;padding:0 12px}
+  .confirm-ov{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:9999;padding:22px}
+  .confirm-box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;max-width:340px;width:100%;box-shadow:0 12px 40px -8px #000}
+  .confirm-msg{font-size:14px;line-height:1.5;margin-bottom:17px;color:var(--txt)}
+  .confirm-btns{display:flex;gap:10px;justify-content:flex-end}
   .geardisp{font-family:'Silkscreen',ui-monospace,monospace;font-size:50px;line-height:1;color:var(--amber);min-width:58px;text-align:center}
   .gearpips{display:flex;gap:8px}
   .gearpips .pip{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;color:var(--dim);background:var(--tile);transition:.12s}
@@ -1844,12 +1848,27 @@ $("btnDelete").onclick=()=>{
   saveBikes(a); refreshBikeSel(""); renderGarage(); $("bikeName").value=""; $("key").value=""; $("ukid").value=1;
   log("Vélo supprimé.","warn");
 };
+// Confirmation intégrée (fiable même en PWA, contrairement à confirm() natif)
+function askConfirm(msg, onYes){
+  const ov=document.createElement("div"); ov.className="confirm-ov";
+  const box=document.createElement("div"); box.className="confirm-box";
+  const m=document.createElement("div"); m.className="confirm-msg"; m.textContent=msg;
+  const bl=document.createElement("div"); bl.className="confirm-btns";
+  const no=document.createElement("button"); no.textContent="Annuler";
+  const yes=document.createElement("button"); yes.className="danger"; yes.textContent="Supprimer";
+  bl.appendChild(no); bl.appendChild(yes); box.appendChild(m); box.appendChild(bl); ov.appendChild(box);
+  document.body.appendChild(ov);
+  const close=()=>{ try{ov.remove();}catch(_){ov.parentNode&&ov.parentNode.removeChild(ov);} };
+  no.onclick=close; ov.onclick=e=>{ if(e.target===ov) close(); };
+  yes.onclick=()=>{ close(); try{ onYes(); }catch(_){} };
+}
 $("btnClearAll").onclick=()=>{
   const n=getBikes().length;
   if(!n){ log("Aucun vélo à supprimer.","info"); return; }
-  if(!confirm("Supprimer les "+n+" vélo(s) enregistré(s) ? Cette action est définitive.")) return;
-  saveBikes([]); refreshBikeSel(""); renderGarage(); $("bikeName").value=""; $("key").value=""; $("ukid").value=1;
-  log("Tous les vélos supprimés ("+n+").","warn");
+  askConfirm("Supprimer les "+n+" vélo(s) enregistré(s) ? Cette action est définitive.", ()=>{
+    saveBikes([]); refreshBikeSel(""); renderGarage(); $("bikeName").value=""; $("key").value=""; $("ukid").value=1;
+    log("Tous les vélos supprimés ("+n+").","warn");
+  });
 };
 // ---- Import des clés (format JSON de l'API VanMoof OU texte du script) ----
 function parseKeysText(txt){
@@ -2182,10 +2201,11 @@ function renderGarage(){
       '</div>';
     c.querySelector(".gconnect").onclick=()=>selectAndConnect(b.name);
     c.querySelector(".gdel").onclick=()=>{
-      if(!confirm('Supprimer le vélo « '+b.name+' » ?')) return;
-      const rm = b.key ? (x=>x.key!==b.key) : (x=>x.name!==b.name);
-      saveBikes(getBikes().filter(rm)); refreshBikeSel(""); renderGarage();
-      log('Vélo supprimé : '+b.name,'warn');
+      askConfirm('Supprimer le vélo « '+b.name+' » ?', ()=>{
+        const rm = b.key ? (x=>x.key!==b.key) : (x=>x.name!==b.name);
+        saveBikes(getBikes().filter(rm)); refreshBikeSel(""); renderGarage();
+        log('Vélo supprimé : '+b.name,'warn');
+      });
     };
     wrap.appendChild(c);
   });
@@ -2302,7 +2322,7 @@ $("btnBmsRead").onclick=bmsReadCells;
     $("btnConnect").disabled=true;
     log("Web Bluetooth non disponible dans ce contexte.","err");
   } else {
-    log("Funmoov v86 prêt. Allume ton vélo et clique « Connecter ».","ok");
+    log("Funmoov v87 prêt. Allume ton vélo et clique « Connecter ».","ok");
   }
   if(!navigator.serial){
     $("btnBmsConnect").disabled=true;
