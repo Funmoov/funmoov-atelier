@@ -953,8 +953,11 @@
   .console .m.info{color:#9ba3ab}.console .m.ok{color:var(--ok)}.console .m.err{color:var(--err)}
   .console .m.warn{color:var(--warn)}.console .m.tx{color:#6fb6ff}.console .m.rx{color:#d6a94a}
   .divider{height:1px;background:var(--line);margin:15px 0}
-  .hero{display:flex;align-items:center;gap:16px;background:linear-gradient(180deg,#16160f,var(--card));
+  .hero{display:flex;flex-direction:column;gap:13px;background:linear-gradient(180deg,#16160f,var(--card));
     border:1px solid var(--amberdim);border-radius:var(--radius);padding:17px 20px;margin-bottom:13px}
+  .hero-top{display:flex;align-items:center;gap:16px}
+  .hero-actions{display:flex;gap:9px;flex-wrap:wrap;border-top:1px solid var(--amberdim);padding-top:12px}
+  .hero-actions button{flex:1 1 140px;justify-content:center;min-width:0}
   .gearrow{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:6px}
   .gearrow .acts{margin-left:auto;display:flex;gap:9px;flex-wrap:wrap}
   .hero-bat .batbars .bar{fill:var(--amber);opacity:0}
@@ -990,7 +993,7 @@
   .hero-unlock:hover:not(:disabled){filter:brightness(1.08)}
   .hero-unlock:disabled{opacity:.3;cursor:not-allowed;box-shadow:none;background:var(--card2);color:var(--mut)}
   .tile .v.err-tile{font-family:'Inter',sans-serif;font-size:15px;font-weight:700;line-height:1.25}
-  @media(max-width:480px){.hero{flex-wrap:wrap}.hero-unlock{width:100%;justify-content:center;margin-left:0}}
+  @media(max-width:480px){.hero-top{flex-wrap:wrap}.hero-unlock{width:100%;justify-content:center;margin-left:0}}
   ::-webkit-scrollbar{width:9px;height:9px}
   ::-webkit-scrollbar-thumb{background:var(--line);border-radius:5px}
   @media(max-width:560px){.wrap{padding-top:14px}.tile .v{font-size:19px}}
@@ -1014,13 +1017,20 @@
 
   <!-- HERO -->
   <div class="hero">
-    <div class="hero-moof" id="heroMoof" hidden><img id="heroMoofImg" alt="Modèle du vélo"></div>
-    <div class="hero-info">
-      <div class="hero-label">Vélo</div>
-      <div class="hero-name" id="heroName">—</div>
+    <div class="hero-top">
+      <div class="hero-moof" id="heroMoof" hidden><img id="heroMoofImg" alt="Modèle du vélo"></div>
+      <div class="hero-info">
+        <div class="hero-label">Vélo</div>
+        <div class="hero-name" id="heroName">—</div>
+      </div>
+      <div class="hero-bat" id="heroBat" title="Batterie"><svg width="18" height="18" viewBox="0 0 24 24"><rect x="2.5" y="8" width="16" height="9" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.7"/><line x1="21" y1="11" x2="21" y2="14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><g class="batbars"><rect class="bar b1" x="4.6" y="10" width="2.9" height="5" rx=".5"/><rect class="bar b2" x="9.1" y="10" width="2.9" height="5" rx=".5"/><rect class="bar b3" x="13.6" y="10" width="2.9" height="5" rx=".5"/></g></svg><span id="heroBatVal">—</span></div>
+      <button class="hero-unlock" id="btnHeroUnlock" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="11" width="15" height="9.5" rx="2"/><path d="M8 11 V7 a4 4 0 0 1 7.7 -1.5"/><circle cx="12" cy="15.5" r="1.3" fill="currentColor" stroke="none"/></svg> Déverrouiller</button>
     </div>
-    <div class="hero-bat" id="heroBat" title="Batterie"><svg width="18" height="18" viewBox="0 0 24 24"><rect x="2.5" y="8" width="16" height="9" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.7"/><line x1="21" y1="11" x2="21" y2="14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><g class="batbars"><rect class="bar b1" x="4.6" y="10" width="2.9" height="5" rx=".5"/><rect class="bar b2" x="9.1" y="10" width="2.9" height="5" rx=".5"/><rect class="bar b3" x="13.6" y="10" width="2.9" height="5" rx=".5"/></g></svg><span id="heroBatVal">—</span></div>
-    <button class="hero-unlock" id="btnHeroUnlock" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="11" width="15" height="9.5" rx="2"/><path d="M8 11 V7 a4 4 0 0 1 7.7 -1.5"/><circle cx="12" cy="15.5" r="1.3" fill="currentColor" stroke="none"/></svg> Déverrouiller</button>
+    <div class="hero-actions">
+      <button class="primary" id="btnHeroConnect"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 7 L7 5 a3.5 3.5 0 0 0 -5 5 l2 2"/><path d="M15 17 l2 2 a3.5 3.5 0 0 0 5 -5 l-2 -2"/><line x1="8.5" y1="15.5" x2="15.5" y2="8.5"/></svg> Connecter</button>
+      <button id="btnHeroAuth" disabled><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="11" width="15" height="9.5" rx="2"/><path d="M8 11 V7 a4 4 0 0 1 7.7 -1.5"/><circle cx="12" cy="15.5" r="1.3" fill="currentColor" stroke="none"/></svg> Authentifier</button>
+      <button id="btnHeroRide" disabled><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="17" r="3.2"/><circle cx="18" cy="17" r="3.2"/><path d="M6 17 L10 9 h4 l3 5"/><path d="M10 9 h5"/></svg> Mode roulage</button>
+    </div>
   </div>
 
   <nav class="nav">
@@ -1870,6 +1880,14 @@ $("importFile").onchange=e=>importFromFile(e.target.files[0]);
 $("btnConnect").onclick=connect;
 $("btnDisconnect").onclick=disconnect;
 $("btnAuth").onclick=()=>doCmd(authenticate);
+// Boutons raccourcis du hero : relaient le clic au bouton d'origine et copient son état
+function mirrorHeroBtn(srcId,dstId){ const s=$(srcId), d=$(dstId); if(!s||!d) return;
+  const sync=()=>{ d.disabled=s.disabled; }; sync();
+  new MutationObserver(sync).observe(s,{attributes:true,attributeFilter:["disabled"]});
+  d.onclick=()=>{ if(!s.disabled) s.click(); }; }
+mirrorHeroBtn("btnConnect","btnHeroConnect");
+mirrorHeroBtn("btnAuth","btnHeroAuth");
+mirrorHeroBtn("btnRideMode","btnHeroRide");
 $("btnRead").onclick=()=>doCmd(readDiag);
 $("btnFull").onclick=()=>doCmd(fullScan);
 $("btnGearRead").onclick=()=>doCmd(readGear);
@@ -2193,7 +2211,7 @@ $("btnBmsRead").onclick=bmsReadCells;
     $("btnConnect").disabled=true;
     log("Web Bluetooth non disponible dans ce contexte.","err");
   } else {
-    log("Funmoov v73 prêt. Allume ton vélo et clique « Connecter ».","ok");
+    log("Funmoov v74 prêt. Allume ton vélo et clique « Connecter ».","ok");
   }
   if(!navigator.serial){
     $("btnBmsConnect").disabled=true;
