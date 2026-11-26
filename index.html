@@ -997,6 +997,7 @@
   ::-webkit-scrollbar{width:9px;height:9px}
   ::-webkit-scrollbar-thumb{background:var(--line);border-radius:5px}
   @media(max-width:560px){.wrap{padding-top:14px}.tile .v{font-size:19px}}
+  .beta{font-size:10px;color:var(--dim);font-weight:500;text-transform:uppercase;letter-spacing:.11em;margin-left:7px;vertical-align:middle}
 </style>
 </head>
 <body>
@@ -1005,7 +1006,7 @@
     <div class="logo">
       <div class="mark">⚡</div>
       <div>
-        <div class="brand">Fun<span>moov</span></div>
+        <div class="brand">Fun<span>moov</span> <span class="beta">beta</span></div>
         <div class="sub">Diagnostic VanMoof · S3 / X3</div>
       </div>
     </div>
@@ -1035,11 +1036,10 @@
 
   <nav class="nav">
     <button class="navbtn active" data-page="controle">Contrôle</button>
-    <button class="navbtn" data-page="velos">Mes vélos</button>
-    <button class="navbtn" data-page="garage">Garage</button>
+    <button class="navbtn" data-page="code">Sécurité</button>
     <button class="navbtn" data-page="diag">Diagnostic</button>
+    <button class="navbtn" data-page="garage">Garage</button>
     <button class="navbtn" data-page="bms">BMS</button>
-    <button class="navbtn" data-page="code">Code</button>
     <button class="navbtn" data-page="journal">Journal</button>
     <button class="navbtn" data-page="about">À propos</button>
   </nav>
@@ -1051,8 +1051,6 @@
       <button id="btnLock" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="11" width="15" height="9.5" rx="2"/><path d="M8 11 V7 a4 4 0 0 1 8 0 v4"/><circle cx="12" cy="15.5" r="1.3" fill="currentColor" stroke="none"/></svg> Verrouiller</button>
       <button id="btnUnlock" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="11" width="15" height="9.5" rx="2"/><path d="M8 11 V7 a4 4 0 0 1 7.7 -1.5"/><circle cx="12" cy="15.5" r="1.3" fill="currentColor" stroke="none"/></svg> Déverrouiller</button>
     </div>
-    <button id="btnRideMode" class="primary" style="width:100%;justify-content:center;margin-top:11px" disabled><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="17" r="3.2"/><circle cx="18" cy="17" r="3.2"/><path d="M6 17 L10 9 h4 l3 5"/><path d="M10 9 h5"/></svg> Mode roulage (essai)</button>
-    <div class="hint">Plein écran pour un essai, téléphone au guidon : vitesse + rapport + batterie en direct. La vitesse s'efface à l'arrêt.</div>
     <div class="divider"></div>
     <label>Assistance moteur</label>
     <div class="seg" id="powerSeg">
@@ -1078,14 +1076,6 @@
       </div>
     </div>
     <div class="hint">Rapport automatique engagé (1 à 4), lu sur la caractéristique <b>5536</b>. « Suivi live » : tourne la roue ou roule pour voir les rapports passer en temps réel.</div>
-    <div class="divider"></div>
-    <label>Alarme antivol</label>
-    <div class="btns">
-      <button id="btnAlarmOff" disabled><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="11" width="15" height="9.5" rx="2"/><path d="M8 11 V7 a4 4 0 0 1 7.7 -1.5"/></svg> Désarmer</button>
-      <button id="btnAlarmOn" disabled><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="11" width="15" height="9.5" rx="2"/><path d="M8 11 V7 a4 4 0 0 1 8 0 v4"/></svg> Armer</button>
-      <button id="btnAlarmRead" disabled><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11.5 a8 8 0 1 0 -2.2 5.4"/><polyline points="20 4.5 20 11.5 13.5 11.5"/></svg> Lire l'état</button>
-    </div>
-    <div class="hint">Arme ou désarme l'alarme de mouvement (armé = 1, désarmé = 0, confirmé par la relecture). « Lire l'état » affiche l'état actuel.</div>
     <div class="divider"></div>
     <label>Lumières</label>
     <div class="btns seg-row">
@@ -1127,10 +1117,16 @@
   </div>
 
   </div>
-  <div class="page" id="page-velos" hidden>
+  <div class="page" id="page-garage" hidden>
+  <div class="card">
+    <h2><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 L12 4 l9 6.5"/><path d="M5 9.5 V20 h14 V9.5"/><rect x="9" y="13" width="6" height="7"/></svg></span> Garage <span id="garageCount" class="gbadge">0</span></h2>
+    <div class="hint">Tous tes vélos, y compris ceux partagés avec toi. Touche « Connecter » sur une carte pour le sélectionner et lancer la connexion.</div>
+    <div id="garageList" class="garagelist"></div>
+  </div>
+
   <!-- CLÉS -->
   <div class="card">
-    <h2><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="16.5" r="3.3"/><circle cx="18" cy="16.5" r="3.3"/><path d="M6 16.5 L10.5 8 H15.5 M9.5 8 H13 M13 8 L18 16.5"/><circle cx="12" cy="6.5" r="1"/></svg></span> Mes vélos</h2>
+    <h2><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="16.5" r="3.3"/><circle cx="18" cy="16.5" r="3.3"/><path d="M6 16.5 L10.5 8 H15.5 M9.5 8 H13 M13 8 L18 16.5"/><circle cx="12" cy="6.5" r="1"/></svg></span> Ajouter / modifier un vélo</h2>
     <div class="row">
       <div class="field" style="flex:0 0 220px">
         <label>Vélo enregistré</label>
@@ -1179,13 +1175,6 @@
     </div>
   </div>
 
-  </div>
-  <div class="page" id="page-garage" hidden>
-  <div class="card">
-    <h2><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 L12 4 l9 6.5"/><path d="M5 9.5 V20 h14 V9.5"/><rect x="9" y="13" width="6" height="7"/></svg></span> Garage <span id="garageCount" class="gbadge">0</span></h2>
-    <div class="hint">Tous tes vélos, y compris ceux partagés avec toi. Touche « Connecter » sur une carte pour le sélectionner et lancer la connexion.</div>
-    <div id="garageList" class="garagelist"></div>
-  </div>
   </div>
 
   <div class="page" id="page-diag" hidden>
@@ -1265,6 +1254,17 @@
 
   </div>
   <div class="page" id="page-code" hidden>
+  <!-- ALARME ANTIVOL -->
+  <div class="card">
+    <h2><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 l7 3 v5 c0 4.4 -2.9 7.5 -7 9 -4.1 -1.5 -7 -4.6 -7 -9 V6 Z"/></svg></span> Alarme antivol</h2>
+    <div class="btns">
+      <button id="btnAlarmOff" disabled><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="11" width="15" height="9.5" rx="2"/><path d="M8 11 V7 a4 4 0 0 1 7.7 -1.5"/></svg> Désarmer</button>
+      <button id="btnAlarmOn" disabled><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="11" width="15" height="9.5" rx="2"/><path d="M8 11 V7 a4 4 0 0 1 8 0 v4"/></svg> Armer</button>
+      <button id="btnAlarmRead" disabled><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11.5 a8 8 0 1 0 -2.2 5.4"/><polyline points="20 4.5 20 11.5 13.5 11.5"/></svg> Lire l'état</button>
+    </div>
+    <div class="hint">Arme ou désarme l'alarme de mouvement (armé = 1, désarmé = 0, confirmé par la relecture). « Lire l'état » affiche l'état actuel.</div>
+  </div>
+
   <!-- CODE -->
   <div class="card">
     <h2><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="11" width="15" height="9.5" rx="2"/><path d="M8 11 V7 a4 4 0 0 1 8 0 v4"/><circle cx="12" cy="15.5" r="1.3" fill="currentColor" stroke="none"/></svg></span> Code de déverrouillage</h2>
@@ -1342,7 +1342,7 @@ function log(msg,cls="info"){
 const hex = bytes => Array.from(bytes).map(b=>b.toString(16).padStart(2,"0")).join("");
 function setStatus(txt,state){ $("statusTxt").textContent=txt; const d=$("dot"); d.className="dot"+(state?" "+state:""); }
 function setCtrl(on){
-  ["btnRead","btnFull","btnDiscover","btnRecord","btnUnlock","btnLock","btnSound","btnSoundNext","btnSetBell","btnReadCode","btnWriteCode","btnMonitor","btnHeroUnlock","btnLightAuto","btnLightOn","btnLightOff","btnGearRead","btnGearLive","btnAlarmOff","btnAlarmOn","btnAlarmRead","btnChgWatch","btnChgProbe","btnRideMode"].forEach(i=>$(i).disabled=!on);
+  ["btnRead","btnFull","btnDiscover","btnRecord","btnUnlock","btnLock","btnSound","btnSoundNext","btnSetBell","btnReadCode","btnWriteCode","btnMonitor","btnHeroUnlock","btnLightAuto","btnLightOn","btnLightOff","btnGearRead","btnGearLive","btnAlarmOff","btnAlarmOn","btnAlarmRead","btnChgWatch","btnChgProbe","btnHeroRide"].forEach(i=>$(i).disabled=!on);
   if(on){ startChgPoll(); }
   else { stopGearLive(); showGear(null); stopChgPoll(); stopChgProbe(); setHeroCharging(false); closeRide(); }
   document.querySelectorAll(".segbtn,.soundbtn,.regionbtn").forEach(b=>b.disabled=!on);
@@ -1435,6 +1435,8 @@ async function connect(){
     const chKi = await getChar(C.KEY_INDEX);
     log("KEY_INDEX propriétés: ["+propStr(chKi.properties)+"]","info");
     $("btnAuth").disabled=false; $("btnDisconnect").disabled=false; $("btnConnect").disabled=true;
+    log("Authentification automatique…","info");
+    await doCmd(authenticate);
   }catch(e){ log("Erreur connexion: "+e.message,"err"); setStatus("Déconnecté",""); }
 }
 function onDisconnect(){ authed=false; setStatus("Déconnecté",""); setCtrl(false);
@@ -1629,7 +1631,7 @@ async function rideTick(){
     if(sp!==rideLastSp){ $("rideSpeed").innerHTML=matrixDigits(String(sp)); rideLastSp=sp; }
     $("rideSpeedWrap").classList.toggle("idle", !sp);
     if(g!=null) $("rideGear").textContent=(g>=1&&g<=4?g:"—");
-    if(rideBatN%12===0){ const br=await readChar(C.MODULE_BATTERY_LEVEL); if(br.dec) $("rideBat").textContent=br.dec[0]+"%"; }
+    if(rideBatN%12===0){ const br=await readChar(C.MOTOR_BATTERY_LEVEL); if(br.dec) $("rideBat").textContent=br.dec[0]+"%"; }
     rideBatN++;
   }catch(e){ if(!server||!server.connected){ closeRide(); log("Mode roulage fermé (déconnecté).","warn"); } }
   finally{ busy=false; }
@@ -1887,7 +1889,6 @@ function mirrorHeroBtn(srcId,dstId){ const s=$(srcId), d=$(dstId); if(!s||!d) re
   d.onclick=()=>{ if(!s.disabled) s.click(); }; }
 mirrorHeroBtn("btnConnect","btnHeroConnect");
 mirrorHeroBtn("btnAuth","btnHeroAuth");
-mirrorHeroBtn("btnRideMode","btnHeroRide");
 $("btnRead").onclick=()=>doCmd(readDiag);
 $("btnFull").onclick=()=>doCmd(fullScan);
 $("btnGearRead").onclick=()=>doCmd(readGear);
@@ -1897,7 +1898,7 @@ $("btnAlarmOn").onclick=()=>doCmd(()=>writeEncrypted(C.ALARM_STATE,[1],"Alarme a
 $("btnAlarmRead").onclick=()=>doCmd(async()=>{ const r=await readChar(C.ALARM_STATE); log("ALARM_STATE → "+((r.dec||r.raw)[0]),"rx"); });
 $("btnChgWatch").onclick=()=>toggleChgWatch();
 $("btnChgProbe").onclick=()=>startChgProbe();
-$("btnRideMode").onclick=()=>openRide();
+$("btnHeroRide").onclick=()=>openRide();
 $("btnRideExit").onclick=()=>closeRide();
 $("btnShare").onclick=async()=>{
   const url=location.origin+location.pathname;
@@ -2102,7 +2103,7 @@ function renderGarage(){
 function selectAndConnect(name){
   loadBike(name);               // charge nom + clé + userKeyId dans les champs
   refreshBikeSel(name);         // reflète la sélection dans la liste déroulante
-  goToPage("velos");            // on bascule sur l'onglet connexion
+  goToPage("controle");         // on bascule sur les contrôles
   connect();                    // ouvre le sélecteur Bluetooth (même geste utilisateur)
 }
 $("btnCopy").onclick=()=>{ const t=Array.from(document.querySelectorAll("#console .l")).map(l=>l.textContent).join("\n");
@@ -2211,7 +2212,7 @@ $("btnBmsRead").onclick=bmsReadCells;
     $("btnConnect").disabled=true;
     log("Web Bluetooth non disponible dans ce contexte.","err");
   } else {
-    log("Funmoov v74 prêt. Allume ton vélo et clique « Connecter ».","ok");
+    log("Funmoov v81 prêt. Allume ton vélo et clique « Connecter ».","ok");
   }
   if(!navigator.serial){
     $("btnBmsConnect").disabled=true;
