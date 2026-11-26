@@ -998,6 +998,12 @@
   ::-webkit-scrollbar-thumb{background:var(--line);border-radius:5px}
   @media(max-width:560px){.wrap{padding-top:14px}.tile .v{font-size:19px}}
   .beta{font-size:10px;color:var(--dim);font-weight:500;text-transform:uppercase;letter-spacing:.11em;margin-left:7px;vertical-align:middle}
+  .shoplink{display:inline-flex;align-items:center;gap:7px;margin-top:9px;color:var(--amber);text-decoration:none;font-weight:600;font-size:12.5px;border:1px solid var(--amberdim);border-radius:8px;padding:7px 13px;transition:background .15s}
+  .shoplink:hover{background:var(--amberdim)}
+  ol.tuto{margin:6px 0 2px;padding-left:22px;line-height:1.65;font-size:13px;color:var(--txt)}
+  ol.tuto li{margin-bottom:9px}
+  ol.tuto code,.hint code{background:#00000045;color:var(--amber);padding:1px 6px;border-radius:4px;font-family:ui-monospace,monospace;font-size:12px}
+  ol.tuto a,.hint a{color:var(--amber)}
 </style>
 </head>
 <body>
@@ -1175,6 +1181,21 @@
     </div>
   </div>
 
+  <!-- TUTO CLÉS -->
+  <div class="card">
+    <h2><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5 a2 2 0 0 1 2 -2 h5 v16 H6 a2 2 0 0 0 -2 2 Z"/><path d="M20 5 a2 2 0 0 0 -2 -2 h-5 v16 h5 a2 2 0 0 1 2 2 Z"/></svg></span> Tuto : récupérer et importer tes clés</h2>
+    <ol class="tuto">
+      <li>Sur un <b>ordinateur</b> (Windows ou Mac), récupère le script <code>recuperer-cles-vanmoof.py</code> (lien sur <a href="https://funmoovparis.fr" target="_blank" rel="noopener">funmoovparis.fr</a>).</li>
+      <li>Installe <b>Python</b> si besoin (<a href="https://www.python.org/downloads/" target="_blank" rel="noopener">python.org</a> — à l'installation, coche « Add Python to PATH »).</li>
+      <li>Ouvre un terminal dans le dossier du script et lance :<br><code>python recuperer-cles-vanmoof.py</code></li>
+      <li>Saisis l'<b>e-mail</b> et le <b>mot de passe</b> de ton compte VanMoof. ⚠️ Ils servent <u>uniquement</u> à interroger le serveur VanMoof — rien n'est envoyé à Funmoov.</li>
+      <li>Le script affiche tes vélos (nom, cadre, MAC, clé…) et crée le fichier <code>mes-cles-vanmoof.txt</code>.</li>
+      <li>Reviens ici, dans <b>« Importer mes clés »</b> ci-dessus : colle le texte ou dépose le fichier, puis <b>Importer</b>.</li>
+      <li>Tes vélos apparaissent dans le Garage, prêts à connecter. 🎉</li>
+    </ol>
+    <div class="hint">💡 Erreur <code>getaddrinfo failed</code> / « Pas de connexion » ? Coupe ton <b>VPN</b> (il peut bloquer l'accès au serveur VanMoof), puis relance le script.</div>
+  </div>
+
   </div>
 
   <div class="page" id="page-diag" hidden>
@@ -1293,7 +1314,9 @@
       <p class="legal">Funmoov décline toute responsabilité en cas de dommage, perte de données ou dysfonctionnement résultant de son utilisation.</p>
     </div>
   </div>
-  <div class="foot">Funmoov — outil indépendant, non affilié à VanMoof. Fourni sans garantie ; usage aux risques de l'utilisateur.</div>
+  <div class="foot">Funmoov — outil indépendant, non affilié à VanMoof. Fourni sans garantie ; usage aux risques de l'utilisateur.<br>
+    <a class="shoplink" href="https://funmoovparis.fr" target="_blank" rel="noopener"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7 h16 l-1 13 a1.5 1.5 0 0 1 -1.5 1.4 H6.5 A1.5 1.5 0 0 1 5 20 Z"/><path d="M8.5 7 a3.5 3.5 0 0 1 7 0"/></svg> Entretien &amp; réparation VanMoof — funmoovparis.fr</a>
+  </div>
 </div>
 
 <!-- MODE ROULAGE (plein écran) -->
@@ -2212,7 +2235,7 @@ $("btnBmsRead").onclick=bmsReadCells;
     $("btnConnect").disabled=true;
     log("Web Bluetooth non disponible dans ce contexte.","err");
   } else {
-    log("Funmoov v81 prêt. Allume ton vélo et clique « Connecter ».","ok");
+    log("Funmoov v82 prêt. Allume ton vélo et clique « Connecter ».","ok");
   }
   if(!navigator.serial){
     $("btnBmsConnect").disabled=true;
