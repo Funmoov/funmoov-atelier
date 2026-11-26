@@ -1167,9 +1167,40 @@
     </div>
   </div>
 
+  <!-- EXTRACTION DIRECTE -->
+  <div class="card">
+    <h2><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 18 a4 4 0 0 1 -0.5 -8 A5.5 5.5 0 0 1 16.5 8.5 a3.8 3.8 0 0 1 1 7.5"/><path d="M12 12 v6"/><polyline points="9.5 15.5 12 18 14.5 15.5"/></svg></span> Récupérer mes clés automatiquement</h2>
+    <div class="hint">Saisis ton compte VanMoof : l'app récupère tes vélos <b>directement</b>, sans script ni ordinateur. Ton mot de passe sert uniquement à interroger VanMoof via ton relais — il n'est <u>jamais stocké</u>.</div>
+    <div class="row" style="margin-top:12px">
+      <div class="field">
+        <label>E-mail VanMoof</label>
+        <input id="vmEmail" type="email" autocomplete="username" placeholder="ton@email.com" spellcheck="false">
+      </div>
+      <div class="field">
+        <label>Mot de passe VanMoof</label>
+        <input id="vmPass" type="password" autocomplete="current-password" placeholder="••••••••">
+      </div>
+    </div>
+    <div class="btns" style="margin-top:14px;align-items:center">
+      <button class="primary" id="btnFetchKeys"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 18 a4 4 0 0 1 -0.5 -8 A5.5 5.5 0 0 1 16.5 8.5 a3.8 3.8 0 0 1 1 7.5"/><path d="M12 12 v6"/><polyline points="9.5 15.5 12 18 14.5 15.5"/></svg> Récupérer mes clés</button>
+      <span class="hint" id="vmStatus" style="margin:0"></span>
+    </div>
+    <details style="margin-top:12px">
+      <summary style="cursor:pointer;color:var(--dim);font-size:12px">⚙️ Configurer le relais (une fois)</summary>
+      <div class="row" style="margin-top:10px;align-items:flex-end">
+        <div class="field">
+          <label>URL du relais Vercel</label>
+          <input id="vmEndpointInput" placeholder="https://ton-projet.vercel.app/api/cles-vanmoof" spellcheck="false">
+        </div>
+        <button id="btnSaveEndpoint"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3 h11 l3 3 v15 H5 Z"/><rect x="8" y="3" width="8" height="5"/><rect x="8.5" y="13" width="7" height="5"/></svg> Enregistrer</button>
+      </div>
+      <div class="hint">Déploie le relais Funmoov sur Vercel (gratuit), puis colle son URL ici. Voir le tuto plus bas.</div>
+    </details>
+  </div>
+
   <!-- IMPORT CLÉS -->
   <div class="card">
-    <h2><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 v12"/><polyline points="7 10 12 15 17 10"/><path d="M5 20 h14"/></svg></span> Importer mes clés VanMoof</h2>
+    <h2><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 v12"/><polyline points="7 10 12 15 17 10"/><path d="M5 20 h14"/></svg></span> Importer mes clés VanMoof (manuel)</h2>
     <div class="hint">Lance le script <b>recuperer-cles-vanmoof.py</b> sur ton ordinateur, puis colle ici le texte obtenu (ou dépose le fichier <b>mes-cles-vanmoof.txt</b>). Tous les vélos trouvés sont ajoutés d'un coup. Ton mot de passe VanMoof ne passe jamais par l'appli.</div>
     <div id="dropZone" class="dropzone" style="margin-top:12px">
       <textarea id="importText" placeholder="Colle ici le résultat du script, ou dépose le fichier mes-cles-vanmoof.txt…" spellcheck="false"></textarea>
@@ -1881,9 +1912,7 @@ function parseKeysText(txt){
   bikes.forEach((b,i)=>{ if(!b.name) b.name="Vélo "+(i+1); });
   return dedupe(bikes);
 }
-function doImport(txt){
-  const found=parseKeysText(txt);
-  if(!found.length){ log("Aucune clé (32 hex) trouvée. Colle le résultat du script ou le JSON VanMoof.","warn"); return; }
+function importBikes(found){
   const a=getBikes(); let added=0, updated=0;
   found.forEach(f=>{
     const i=a.findIndex(x=>x.key===f.key);
@@ -1892,11 +1921,43 @@ function doImport(txt){
     else { a.push(f); added++; }
   });
   saveBikes(a); refreshBikeSel(); renderGarage();
-  log("Import ✓ : "+added+" ajouté(s), "+updated+" mis à jour ("+found.length+" vélo(s) lu(s)).","ok");
+  return {added,updated,total:found.length};
+}
+function doImport(txt){
+  const found=parseKeysText(txt);
+  if(!found.length){ log("Aucune clé (32 hex) trouvée. Colle le résultat du script ou le JSON VanMoof.","warn"); return; }
+  const r=importBikes(found);
+  log("Import ✓ : "+r.added+" ajouté(s), "+r.updated+" mis à jour ("+r.total+" vélo(s) lu(s)).","ok");
+}
+// ---------- Extraction directe des clés via le relais Vercel ----------
+const KEYS_EP_STORE="fm_keys_endpoint";
+function getKeysEndpoint(){ try{ return (localStorage.getItem(KEYS_EP_STORE)||"").trim(); }catch(_){ return ""; } }
+function setVmStatus(t){ const e=$("vmStatus"); if(e) e.textContent=t||""; }
+async function fetchKeysDirect(){
+  const ep=getKeysEndpoint();
+  if(!ep){ setVmStatus("⚙️ Configure d'abord l'URL du relais (menu « Configurer le relais » ci-dessous)."); return; }
+  const email=$("vmEmail").value.trim(), password=$("vmPass").value;
+  if(!email||!password){ setVmStatus("Entre ton e-mail et ton mot de passe VanMoof."); return; }
+  const btn=$("btnFetchKeys"); btn.disabled=true; setVmStatus("Connexion à VanMoof…");
+  try{
+    const r=await fetch(ep,{ method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({email,password}) });
+    const j=await r.json().catch(()=>({}));
+    if(!r.ok){ setVmStatus("❌ "+(j.error||("Erreur "+r.status))); btn.disabled=false; return; }
+    const bikes=j.bikes||[];
+    if(!bikes.length){ setVmStatus("Aucun vélo trouvé sur ce compte."); btn.disabled=false; return; }
+    const res=importBikes(bikes);
+    setVmStatus("✅ "+res.added+" ajouté(s), "+res.updated+" mis à jour ("+res.total+" vélo(s)). Va voir ton Garage !");
+    $("vmPass").value=""; // on ne garde pas le mot de passe
+    log("Clés récupérées via le relais ✓ : "+bikes.length+" vélo(s).","ok");
+  }catch(e){ setVmStatus("❌ Relais injoignable. Vérifie l'URL configurée et ta connexion."); }
+  btn.disabled=false;
 }
 function importFromFile(f){ if(!f) return; const r=new FileReader(); r.onload=()=>{ $("importText").value=r.result; doImport(r.result); }; r.readAsText(f); }
 $("btnImport").onclick=()=>doImport($("importText").value);
 $("importFile").onchange=e=>importFromFile(e.target.files[0]);
+if($("btnFetchKeys")) $("btnFetchKeys").onclick=fetchKeysDirect;
+if($("btnSaveEndpoint")) $("btnSaveEndpoint").onclick=()=>{ const u=$("vmEndpointInput").value.trim(); try{ localStorage.setItem(KEYS_EP_STORE,u); }catch(_){} setVmStatus(u?"URL du relais enregistrée ✓":"URL effacée."); };
+(function(){ const i=$("vmEndpointInput"); if(i) i.value=getKeysEndpoint(); })();
 (function(){ const dz=$("dropZone"); if(!dz) return;
   ["dragover","dragenter"].forEach(ev=>dz.addEventListener(ev,e=>{ e.preventDefault(); dz.classList.add("dragover"); }));
   ["dragleave","dragend"].forEach(ev=>dz.addEventListener(ev,e=>{ e.preventDefault(); dz.classList.remove("dragover"); }));
@@ -2235,7 +2296,7 @@ $("btnBmsRead").onclick=bmsReadCells;
     $("btnConnect").disabled=true;
     log("Web Bluetooth non disponible dans ce contexte.","err");
   } else {
-    log("Funmoov v82 prêt. Allume ton vélo et clique « Connecter ».","ok");
+    log("Funmoov v83 prêt. Allume ton vélo et clique « Connecter ».","ok");
   }
   if(!navigator.serial){
     $("btnBmsConnect").disabled=true;
